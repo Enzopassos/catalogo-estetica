@@ -1,0 +1,139 @@
+/* Base Styles & Typography */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile-First Frame Container */
+.app-container {
+  width: 100%;
+  max-width: 480px; /* Mobile frame max width, centered on larger screens */
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+  padding-bottom: 90px; /* Space for floating sticky cart bar */
+}
+
+/* Typography Hierarchy according to DESIGN.md */
+h1, h2, h3, h4, .font-headline {
+  font-family: var(--font-headline);
+  color: var(--color-on-surface);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.headline-xl {
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+
+.headline-lg {
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+
+.headline-md {
+  font-size: 1.35rem;
+  line-height: 1.3;
+}
+
+.body-lg {
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: #333;
+}
+
+.body-md {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-secondary);
+}
+
+.body-sm {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-secondary);
+}
+
+.label-uppercase {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+}
+
+/* Links & Interactive Elements */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+  min-height: 44px; /* Minimum touch target requirement */
+  min-width: 44px;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  border-radius: var(--radius-default);
+  outline: none;
+}
+
+/* Section Wrapper */
+.section {
+  padding: var(--stack-lg) var(--margin-mobile);
+}
+
+.section-title-wrap {
+  margin-bottom: var(--stack-md);
+}
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+/* Touch active scale effect */
+.touch-active {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.touch-active:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
