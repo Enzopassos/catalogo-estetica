@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { UploadImagem } from './UploadImagem';
 
 export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalvar }) {
   const [nome, setNome] = useState('');
@@ -31,7 +32,7 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
       await onSalvar({
         id: categoria?.id,
         nome: nome.trim(),
-        imagem_url: imagemUrl.trim(),
+        imagem_url: imagemUrl.trim() || '/images/services/facial_spa.png',
         descricao: descricao.trim(),
         ordem: categoria?.ordem || 0
       });
@@ -47,7 +48,10 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
     <div className="modal-overlay open" onClick={onFechar}>
       <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
-          <h3 className="admin-modal-title">{isEdicao ? 'Editar Categoria' : 'Nova Categoria'}</h3>
+          <div>
+            <span className="section-tag" style={{ marginBottom: '2px' }}>Gestão de Categoria</span>
+            <h3 className="admin-modal-title">{isEdicao ? 'Editar Categoria' : 'Nova Categoria'}</h3>
+          </div>
           <button type="button" className="btn-close-modal" onClick={onFechar} aria-label="Fechar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -63,24 +67,20 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
               type="text"
               id="inputCatNome"
               className="form-input"
-              placeholder="Ex: Maquiagem, Sobrancelha, Estética Geral"
+              placeholder="Ex: Maquiagem, Sobrancelhas, Estética Geral"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="inputCatImg" className="form-label">Foto de Capa da Categoria (URL)</label>
-            <input
-              type="text"
-              id="inputCatImg"
-              className="form-input"
-              placeholder="/images/services/makeup_glam.png ou https://..."
-              value={imagemUrl}
-              onChange={(e) => setImagemUrl(e.target.value)}
-            />
-          </div>
+          <UploadImagem
+            valor={imagemUrl}
+            onAlterar={setImagemUrl}
+            pasta="categorias"
+            label="Foto de Capa da Categoria *"
+            placeholderPadrao="/images/services/facial_spa.png"
+          />
 
           <div className="form-group">
             <label htmlFor="inputCatDesc" className="form-label">Descrição Resumida</label>
@@ -88,14 +88,14 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
               id="inputCatDesc"
               className="form-input"
               rows={3}
-              placeholder="Ex: Procedimentos exclusivos com técnicas avançadas..."
+              placeholder="Ex: Procedimentos exclusivos com técnicas avançadas e produtos de alta performance..."
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
             ></textarea>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-            <button type="button" className="btn-admin-secondary" onClick={onFechar} disabled={salvando}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px', borderTop: '1px solid var(--color-border-light)', paddingTop: '16px' }}>
+            <button type="button" className="btn-admin-secondary touch-active" onClick={onFechar} disabled={salvando}>
               Cancelar
             </button>
             <button type="submit" className="btn-primary-red touch-active" disabled={salvando}>
@@ -107,3 +107,5 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
     </div>
   );
 }
+
+

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { UploadImagem } from './UploadImagem';
 
 export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, onSalvar }) {
   const [titulo, setTitulo] = useState('');
@@ -99,9 +100,14 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
     <div className="modal-overlay open" onClick={onFechar}>
       <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
-          <h3 className="admin-modal-title">
-            {isEdicao ? 'Editar Procedimento' : `Novo Procedimento (${categoria?.nome || ''})`}
-          </h3>
+          <div>
+            <span className="section-tag" style={{ marginBottom: '2px' }}>
+              {categoria?.nome || 'Procedimento'}
+            </span>
+            <h3 className="admin-modal-title">
+              {isEdicao ? 'Editar Procedimento' : 'Novo Procedimento'}
+            </h3>
+          </div>
           <button type="button" className="btn-close-modal" onClick={onFechar} aria-label="Fechar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -156,17 +162,13 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="inputServicoImg" className="form-label">Foto / Imagem do Procedimento (URL)</label>
-            <input
-              type="text"
-              id="inputServicoImg"
-              className="form-input"
-              placeholder="/images/services/makeup_glam.png ou https://..."
-              value={imagemUrl}
-              onChange={(e) => setImagemUrl(e.target.value)}
-            />
-          </div>
+          <UploadImagem
+            valor={imagemUrl}
+            onAlterar={setImagemUrl}
+            pasta="servicos"
+            label="Foto / Imagem do Procedimento *"
+            placeholderPadrao="/images/services/makeup_glam.png"
+          />
 
           <div className="form-group">
             <label htmlFor="inputServicoDesc" className="form-label">Descrição do Procedimento</label>
@@ -181,7 +183,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
           </div>
 
           {/* Controle Dinâmico: Possui opcionais extras? */}
-          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)', borderRadius: '10px', padding: '12px 14px', marginBottom: '14px' }}>
+          <div style={{ background: 'var(--color-surface-container-low)', border: '1px solid var(--color-border-light)', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px' }}>
             <label className="custom-checkbox-wrap">
               <input
                 type="checkbox"
@@ -192,7 +194,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
                 Este procedimento possui opções de adicionais extras?
               </span>
             </label>
-            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-secondary)', marginLeft: '26px', marginTop: '2px' }}>
+            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-secondary)', marginLeft: '24px', marginTop: '2px' }}>
               Ex: Cílios 3D, Iluminação de colo, Spa labial complementar.
             </span>
           </div>
@@ -202,13 +204,13 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
             <div className="admin-addons-builder">
               <div className="addons-builder-header">
                 <span className="form-label" style={{ margin: 0, color: 'var(--color-primary-red)' }}>
-                  Adicionais / Opcionais
+                  Adicionais / Opcionais Extras
                 </span>
                 <button
                   type="button"
                   onClick={handleAddAdicional}
-                  className="btn-admin-secondary"
-                  style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                  className="btn-admin-secondary touch-active"
+                  style={{ padding: '4px 12px', fontSize: '0.75rem' }}
                 >
                   + Adicionar Opcional
                 </button>
@@ -216,7 +218,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
 
               <div className="addons-builder-list">
                 {adicionais.length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-secondary)', margin: '8px 0' }}>
                     Nenhum opcional configurado. Clique em "+ Adicionar Opcional".
                   </p>
                 ) : (
@@ -231,7 +233,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
                         required
                       />
                       <div className="addon-price-wrap">
-                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>R$</span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-secondary)' }}>R$</span>
                         <input
                           type="number"
                           step="0.01"
@@ -246,7 +248,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
                       <button
                         type="button"
                         onClick={() => handleRemoverAdicional(index)}
-                        className="btn-admin-delete"
+                        className="btn-admin-delete touch-active"
                         title="Remover Opcional"
                       >
                         ✕
@@ -259,19 +261,19 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
           )}
 
           {/* Switch de Ativo / Visível no Catálogo */}
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '18px', background: 'var(--color-surface-container-low)', border: '1px solid var(--color-border-light)', borderRadius: '12px', padding: '12px 16px' }}>
             <label className="custom-checkbox-wrap">
               <input
                 type="checkbox"
                 checked={ativo}
                 onChange={(e) => setAtivo(e.target.checked)}
               />
-              <span style={{ fontSize: '0.85rem' }}>Ativo e visível para agendamento dos clientes</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Ativo e visível para agendamento no catálogo</span>
             </label>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-            <button type="button" className="btn-admin-secondary" onClick={onFechar} disabled={salvando}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', borderTop: '1px solid var(--color-border-light)', paddingTop: '16px' }}>
+            <button type="button" className="btn-admin-secondary touch-active" onClick={onFechar} disabled={salvando}>
               Cancelar
             </button>
             <button type="submit" className="btn-primary-red touch-active" disabled={salvando}>
@@ -283,3 +285,5 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
     </div>
   );
 }
+
+

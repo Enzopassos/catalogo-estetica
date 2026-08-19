@@ -19,32 +19,33 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
           src={servico.imagem_url || '/images/services/makeup_glam.png'}
           alt={servico.titulo}
           className="admin-card-thumb"
+          loading="lazy"
           onError={(e) => {
             e.currentTarget.src = '/images/services/makeup_glam.png';
           }}
         />
         <span className={`admin-card-status-badge ${servico.ativo ? 'status-ativo' : 'status-inativo'}`}>
-          {servico.ativo ? 'Ativo no Catálogo' : 'Oculto'}
+          {servico.ativo ? '● Ativo no Catálogo' : '○ Oculto'}
         </span>
       </div>
 
       <div className="admin-card-body">
         <div className="admin-card-meta-top">
           <span className="admin-duration-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            {duracaoFormatada}
+            <span>{duracaoFormatada}</span>
           </span>
         </div>
 
         <h3 className="admin-card-title">{servico.titulo}</h3>
         <div className="admin-card-price">{precoFormatado}</div>
-        <p className="admin-card-desc">{servico.descricao}</p>
+        <p className="admin-card-desc">{servico.descricao || 'Sem descrição cadastrada para este procedimento.'}</p>
 
         <div className="admin-addons-section">
-          <div className="admin-addons-title">Adicionais Extras:</div>
+          <div className="admin-addons-title">Adicionais Opcionais:</div>
           <div className="admin-addons-list">
             {listaAddons.length > 0 ? (
               listaAddons.map(a => (
@@ -53,7 +54,7 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
                 </span>
               ))
             ) : (
-              <span className="admin-text-muted">Nenhum adicional configurado</span>
+              <span className="admin-text-muted">Nenhum opcional configurado</span>
             )}
           </div>
         </div>
@@ -61,23 +62,23 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
         <div className="admin-card-footer">
           <button
             type="button"
-            className="btn-admin-icon"
+            className="btn-admin-icon touch-active"
             onClick={() => onToggleStatus(servico)}
-            title={servico.ativo ? 'Desativar' : 'Ativar'}
+            title={servico.ativo ? 'Ocultar do Catálogo' : 'Exibir no Catálogo'}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {servico.ativo ? (
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               ) : (
                 <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
               )}
             </svg>
-            <span>{servico.ativo ? 'Ocultar' : 'Exibir'}</span>
+            <span>{servico.ativo ? 'Ocultar' : 'Ativar'}</span>
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <button type="button" onClick={() => onEditar(servico)} className="btn-admin-edit touch-active">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <button type="button" onClick={() => onEditar(servico)} className="btn-admin-edit touch-active" title="Editar Procedimento">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
@@ -85,7 +86,7 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
             </button>
 
             <button type="button" onClick={() => onExcluir(servico)} className="btn-admin-delete touch-active" title="Excluir Procedimento">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
@@ -96,3 +97,4 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
     </div>
   );
 }
+

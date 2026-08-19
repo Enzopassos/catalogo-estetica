@@ -60,29 +60,25 @@ export function PaginaAdminServicos() {
   return (
     <div>
       {/* Breadcrumb de Retorno */}
-      <div style={{ marginBottom: '14px' }}>
-        <Link to="/admin/categorias" className="admin-breadcrumb-btn touch-active">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-          <span>Voltar para Todas as Categorias</span>
-        </Link>
-      </div>
+      <Link to="/admin/categorias" className="admin-breadcrumb-btn touch-active">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Voltar para Todas as Categorias</span>
+      </Link>
 
       <div className="admin-section-header">
         <div>
-          <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--color-primary-red)', fontWeight: 800, letterSpacing: '0.8px', display: 'block', marginBottom: '2px' }}>
-            {categoriaAtual?.nome || categoriaSlug}
-          </span>
+          <span className="section-tag">{categoriaAtual?.nome || 'Procedimentos'}</span>
           <h2 className="admin-section-title">Procedimentos de {categoriaAtual?.nome || categoriaSlug}</h2>
           <p className="admin-section-desc">
-            Gerencie preços, duração, fotos e opcionais extras desta categoria.
+            Configure valores, tempos de execução, fotos ilustrativas e opções de adicionais para esta área.
           </p>
         </div>
 
         <button type="button" onClick={handleAbrirCriar} className="btn-primary-red touch-active">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
@@ -91,16 +87,21 @@ export function PaginaAdminServicos() {
       </div>
 
       {servicosDaCategoria.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 16px', background: '#ffffff', borderRadius: '16px', border: '1px dashed var(--color-border-light)' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--color-secondary)', marginBottom: '8px' }}>
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
-          <h3>Nenhum procedimento nesta categoria</h3>
-          <p style={{ color: 'var(--color-secondary)', marginTop: '4px' }}>
-            Clique em "+ Novo Procedimento" para cadastrar o primeiro serviço de {categoriaAtual?.nome || categoriaSlug}.
+        <div className="admin-empty-state">
+          <div className="admin-empty-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          </div>
+          <h3 className="admin-empty-title">Nenhum procedimento nesta categoria</h3>
+          <p className="admin-empty-desc">
+            Cadastre o primeiro serviço de {categoriaAtual?.nome || categoriaSlug} para disponibilizar no catálogo aos seus clientes.
           </p>
+          <button type="button" onClick={handleAbrirCriar} className="btn-primary-red touch-active" style={{ margin: '0 auto' }}>
+            <span>+ Cadastrar Primeiro Procedimento</span>
+          </button>
         </div>
       ) : (
         <div className="admin-items-grid">
@@ -126,3 +127,4 @@ export function PaginaAdminServicos() {
     </div>
   );
 }
+

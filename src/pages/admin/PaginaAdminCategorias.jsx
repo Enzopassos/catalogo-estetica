@@ -46,14 +46,15 @@ export function PaginaAdminCategorias() {
     <div>
       <div className="admin-section-header">
         <div>
+          <span className="section-tag">Gestão do Catálogo</span>
           <h2 className="admin-section-title">Categorias de Atendimento</h2>
           <p className="admin-section-desc">
-            Crie categorias e clique em <strong>Gerenciar Serviços</strong> para administrar os procedimentos de cada área.
+            Cadastre as especialidades e clique em <strong>Gerenciar Serviços</strong> para configurar procedimentos, preços e fotos.
           </p>
         </div>
 
         <button type="button" onClick={handleAbrirCriar} className="btn-primary-red touch-active">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
@@ -62,11 +63,22 @@ export function PaginaAdminCategorias() {
       </div>
 
       {categorias.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '48px 16px', background: '#ffffff', borderRadius: '16px', border: '1px dashed var(--color-border-light)' }}>
-          <h3>Nenhuma categoria cadastrada</h3>
-          <p style={{ color: 'var(--color-secondary)', marginTop: '4px' }}>
-            Clique no botão "+ Nova Categoria" acima para iniciar.
+        <div className="admin-empty-state">
+          <div className="admin-empty-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <h3 className="admin-empty-title">Nenhuma categoria cadastrada</h3>
+          <p className="admin-empty-desc">
+            Inicie adicionando a primeira categoria de serviços do seu estúdio (ex: Maquiagem, Sobrancelhas, Estética Facial).
           </p>
+          <button type="button" onClick={handleAbrirCriar} className="btn-primary-red touch-active" style={{ margin: '0 auto' }}>
+            <span>+ Cadastrar Primeira Categoria</span>
+          </button>
         </div>
       ) : (
         <div className="admin-items-grid">
