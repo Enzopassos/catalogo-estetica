@@ -26,7 +26,7 @@ export function LayoutAdmin() {
         <div className="admin-nav-brand">
           <img
             src="/images/I0H9wR3zSyPLDxG8mdDg_XMQUab25GgxFIX1c.jpg"
-            alt="Gabriela Beauty"
+            alt={configuracoes?.nome_negocio || 'Studio de Beleza'}
             className="admin-nav-avatar"
           />
           <div className="admin-brand-texts">

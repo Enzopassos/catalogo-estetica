@@ -2,8 +2,34 @@ import React from 'react';
 import { useCatalogo } from '../../hooks/useCatalogo';
 
 export function BannerInstagram() {
-  const { configuracoes } = useCatalogo();
-  const usuarioInsta = configuracoes?.instagram_usuario || 'gabriela.beauty';
+  const { configuracoes, servicos, categorias } = useCatalogo();
+  const usuarioInsta = configuracoes?.instagram_usuario?.replace('@', '').trim() || 'gabrielapassosbeauty';
+
+  // Obter até 3 imagens distintas dos serviços ou categorias do banco
+  const imagensDinamicas = React.useMemo(() => {
+    const fotos = [];
+    servicos.forEach(s => {
+      if (s.imagem_url && !fotos.includes(s.imagem_url) && fotos.length < 3) {
+        fotos.push(s.imagem_url);
+      }
+    });
+    if (fotos.length < 3) {
+      categorias.forEach(c => {
+        if (c.imagem_url && !fotos.includes(c.imagem_url) && fotos.length < 3) {
+          fotos.push(c.imagem_url);
+        }
+      });
+    }
+    const fallbacks = [
+      '/images/services/makeup_glam.png',
+      '/images/services/brow_lamination.png',
+      '/images/services/facial_spa.png'
+    ];
+    while (fotos.length < 3) {
+      fotos.push(fallbacks[fotos.length]);
+    }
+    return fotos;
+  }, [servicos, categorias]);
 
   return (
     <div className="instagram-banner">
@@ -11,15 +37,19 @@ export function BannerInstagram() {
       <p className="insta-subtitle">Acompanhe transformações reais e bastidores no Instagram</p>
 
       <div className="insta-grid">
-        <div className="insta-grid-item">
-          <img src="/images/services/makeup_glam.png" alt="Make Glam" loading="lazy" />
-        </div>
-        <div className="insta-grid-item">
-          <img src="/images/services/brow_lamination.png" alt="Brow Lamination" loading="lazy" />
-        </div>
-        <div className="insta-grid-item">
-          <img src="/images/services/facial_spa.png" alt="Facial Spa" loading="lazy" />
-        </div>
+        {imagensDinamicas.map((url, idx) => (
+          <div key={idx} className="insta-grid-item">
+            <img
+              src={url}
+              alt={`Galeria ${idx + 1}`}
+              loading="lazy"
+              onError={(e) => {
+                const padrao = ['/images/services/makeup_glam.png', '/images/services/brow_lamination.png', '/images/services/facial_spa.png'];
+                e.currentTarget.src = padrao[idx] || '/images/services/facial_spa.png';
+              }}
+            />
+          </div>
+        ))}
       </div>
 
       <a

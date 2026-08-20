@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCatalogo } from '../../hooks/useCatalogo';
 
 export function PaginaAdminConfig() {
-  const { configuracoes, salvarConfiguracoes } = useCatalogo();
+  const { configuracoes, salvarConfiguracoes, carregando } = useCatalogo();
 
   const [nomeNegocio, setNomeNegocio] = useState('');
   const [subtitulo, setSubtitulo] = useState('');
@@ -13,10 +13,10 @@ export function PaginaAdminConfig() {
 
   useEffect(() => {
     if (configuracoes) {
-      setNomeNegocio(configuracoes.nome_negocio || 'Gabriela Passos');
-      setSubtitulo(configuracoes.subtitulo || 'Maquiagem • Sobrancelhas • Estética');
-      setWhatsappNumero(configuracoes.whatsapp_numero || '5511999999999');
-      setInstagramUsuario(configuracoes.instagram_usuario || 'gabriela.beauty');
+      setNomeNegocio(configuracoes.nome_negocio || '');
+      setSubtitulo(configuracoes.subtitulo || '');
+      setWhatsappNumero(configuracoes.whatsapp_numero || '');
+      setInstagramUsuario(configuracoes.instagram_usuario || '');
     }
   }, [configuracoes]);
 

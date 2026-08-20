@@ -123,16 +123,30 @@ const SERVICOS_PADRAO = [
 const CONFIG_PADRAO = {
   nome_negocio: 'Gabriela Passos',
   subtitulo: 'Maquiagem • Sobrancelhas • Estética',
-  whatsapp_numero: '5511999999999',
-  instagram_usuario: 'gabriela.beauty'
+  whatsapp_numero: '',
+  instagram_usuario: ''
 };
+
+/**
+ * Utilitário para garantir que caminhos de imagem locais comecem com barra '/'
+ */
+function normalizarImagemUrl(url, fallback = '/images/services/facial_spa.png') {
+  if (!url || typeof url !== 'string' || url.trim() === '') {
+    return fallback;
+  }
+  const urlLimpa = url.trim();
+  if (urlLimpa.startsWith('images/')) {
+    return `/${urlLimpa}`;
+  }
+  return urlLimpa;
+}
 
 const ContextoCatalogo = createContext(null);
 
 export function ProvedorCatalogo({ children }) {
-  const [categorias, setCategorias] = useState(CATEGORIAS_PADRAO);
-  const [servicos, setServicos] = useState(SERVICOS_PADRAO);
-  const [configuracoes, setConfiguracoes] = useState(CONFIG_PADRAO);
+  const [categorias, setCategorias] = useState([]);
+  const [servicos, setServicos] = useState([]);
+  const [configuracoes, setConfiguracoes] = useState(null);
   const [carregando, setCarregando] = useState(true);
 
   const carregarDados = useCallback(async () => {
@@ -141,17 +155,23 @@ export function ProvedorCatalogo({ children }) {
       const [resCat, resServ, resConf] = await Promise.allSettled([
         supabase.from('catalogo_categorias').select('*').order('ordem', { ascending: true }),
         supabase.from('catalogo_servicos').select('*').order('ordem', { ascending: true }),
-        supabase.from('catalogo_configuracoes').select('*').limit(1).maybeSingle()
+        supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false }).limit(1).maybeSingle()
       ]);
 
       if (resCat.status === 'fulfilled' && resCat.value?.data && resCat.value.data.length > 0) {
-        setCategorias(resCat.value.data);
+        setCategorias(resCat.value.data.map(cat => ({
+          ...cat,
+          imagem_url: normalizarImagemUrl(cat.imagem_url, '/images/services/facial_spa.png')
+        })));
       } else {
         setCategorias(CATEGORIAS_PADRAO);
       }
 
       if (resServ.status === 'fulfilled' && resServ.value?.data && resServ.value.data.length > 0) {
-        setServicos(resServ.value.data);
+        setServicos(resServ.value.data.map(serv => ({
+          ...serv,
+          imagem_url: normalizarImagemUrl(serv.imagem_url, '/images/services/makeup_glam.png')
+        })));
       } else {
         setServicos(SERVICOS_PADRAO);
       }
@@ -190,7 +210,7 @@ export function ProvedorCatalogo({ children }) {
       nome: dados.nome.trim(),
       slug,
       descricao: dados.descricao?.trim() || '',
-      imagem_url: dados.imagem_url?.trim() || '/images/services/facial_spa.png',
+      imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/facial_spa.png'),
       ordem: Number(dados.ordem) || (categorias.length + 1)
     };
 
@@ -207,7 +227,7 @@ export function ProvedorCatalogo({ children }) {
         nome: dados.nome.trim(),
         slug: dados.slug,
         descricao: dados.descricao?.trim() || '',
-        imagem_url: dados.imagem_url?.trim() || '',
+        imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/facial_spa.png'),
         ordem: Number(dados.ordem) || 0,
         atualizado_em: new Date().toISOString()
       })
@@ -237,7 +257,7 @@ export function ProvedorCatalogo({ children }) {
       descricao: dados.descricao?.trim() || '',
       preco: Number(dados.preco) || 0,
       duracao_minutos: Number(dados.duracao_minutos) || 30,
-      imagem_url: dados.imagem_url?.trim() || '/images/services/makeup_glam.png',
+      imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/makeup_glam.png'),
       adicionais: dados.adicionais || [],
       ativo: dados.ativo !== undefined ? dados.ativo : true,
       ordem: Number(dados.ordem) || (servicos.length + 1)
@@ -259,7 +279,7 @@ export function ProvedorCatalogo({ children }) {
         descricao: dados.descricao?.trim() || '',
         preco: Number(dados.preco) || 0,
         duracao_minutos: Number(dados.duracao_minutos) || 30,
-        imagem_url: dados.imagem_url?.trim() || '/images/services/makeup_glam.png',
+        imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/makeup_glam.png'),
         adicionais: dados.adicionais || [],
         ativo: dados.ativo !== undefined ? dados.ativo : true,
         ordem: Number(dados.ordem) || 0,
@@ -287,20 +307,39 @@ export function ProvedorCatalogo({ children }) {
   }
 
   // =========================================================================
-  // CONFIGURAÇÕES GERAIS
+  // CONFIGURAÇÕES GERAIS (Garante UPDATE / Substituição do Registro)
   // =========================================================================
   async function salvarConfiguracoes(dados) {
-    if (configuracoes?.id) {
+    // 1. Identifica o ID da configuração a atualizar
+    let configId = configuracoes?.id;
+
+    if (!configId) {
+      // Busca se já existe algum registro no banco para atualizar
+      const { data: existente } = await supabase
+        .from('catalogo_configuracoes')
+        .select('id')
+        .order('atualizado_em', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existente?.id) {
+        configId = existente.id;
+      }
+    }
+
+    const payload = {
+      nome_negocio: dados.nome_negocio?.trim() || 'Gabriela Passos',
+      subtitulo: dados.subtitulo?.trim() || 'Maquiagem • Sobrancelhas • Estética',
+      whatsapp_numero: dados.whatsapp_numero ? dados.whatsapp_numero.replace(/\D/g, '') : '',
+      instagram_usuario: dados.instagram_usuario ? dados.instagram_usuario.replace('@', '').trim() : '',
+      atualizado_em: new Date().toISOString()
+    };
+
+    if (configId) {
       const { data, error } = await supabase
         .from('catalogo_configuracoes')
-        .update({
-          nome_negocio: dados.nome_negocio,
-          subtitulo: dados.subtitulo,
-          whatsapp_numero: dados.whatsapp_numero,
-          instagram_usuario: dados.instagram_usuario,
-          atualizado_em: new Date().toISOString()
-        })
-        .eq('id', configuracoes.id)
+        .update(payload)
+        .eq('id', configId)
         .select()
         .single();
 
@@ -308,9 +347,10 @@ export function ProvedorCatalogo({ children }) {
       await carregarDados();
       return data;
     } else {
+      // Se não havia nenhum registro no banco, insere o primeiro
       const { data, error } = await supabase
         .from('catalogo_configuracoes')
-        .insert([dados])
+        .insert([payload])
         .select()
         .single();
 

@@ -14,7 +14,7 @@ export function PaginaProcedimentos() {
 
   const categoriaAtual = categorias.find(c => c.slug === slug);
   const nomeCategoria = slug === 'todos' ? 'Todos os Procedimentos' : (categoriaAtual?.nome || 'Procedimentos');
-  const tagCategoria = slug === 'todos' ? 'Cardápio Completo' : (categoriaAtual?.nome || 'Catálogo');
+  const tagCategoria = slug === 'todos' ? 'Catálogo Completo' : (categoriaAtual?.nome || 'Catálogo');
 
   const servicosFiltrados = slug === 'todos'
     ? servicos.filter(s => s.ativo)

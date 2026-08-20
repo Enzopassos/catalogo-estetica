@@ -114,7 +114,8 @@ export function ProvedorCarrinho({ children }) {
   function enviarParaWhatsApp({ nomeCliente, dataPreferencial, periodoPreferencial, observacoes }) {
     if (resumoItens.length === 0) return;
 
-    let mensagem = `*Olá, Gabriela! Gostaria de agendar os seguintes procedimentos:*\n\n`;
+    const nomeDestino = configuracoes?.nome_negocio || 'Studio de Beleza';
+    let mensagem = `*Olá, ${nomeDestino}! Gostaria de agendar os seguintes procedimentos:*\n\n`;
 
     resumoItens.forEach(({ servico, adicionais, subtotal }, index) => {
       mensagem += `*${index + 1}. ${servico.titulo}*\n`;
@@ -146,8 +147,10 @@ export function ProvedorCarrinho({ children }) {
       mensagem += `📝 *Observações:* ${observacoes.trim()}\n`;
     }
 
-    const whatsDestino = configuracoes?.whatsapp_numero || '5511999999999';
-    const urlWhatsApp = `https://wa.me/${whatsDestino}?text=${encodeURIComponent(mensagem)}`;
+    const whatsDestino = (configuracoes?.whatsapp_numero || '').replace(/\D/g, '');
+    const urlWhatsApp = whatsDestino
+      ? `https://wa.me/${whatsDestino}?text=${encodeURIComponent(mensagem)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
 
     window.open(urlWhatsApp, '_blank');
     limparCarrinho();

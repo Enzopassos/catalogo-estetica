@@ -1,6 +1,11 @@
 import React from 'react';
+import { useCatalogo } from '../../hooks/useCatalogo';
 
 export function Rodape() {
+  const { configuracoes } = useCatalogo();
+  const nomeNegocio = configuracoes?.nome_negocio || 'Studio de Beleza';
+  const anoAtual = new Date().getFullYear();
+
   return (
     <footer
       style={{
@@ -11,7 +16,7 @@ export function Rodape() {
         color: 'var(--color-secondary)'
       }}
     >
-      <p>© 2026 Gabriela Beauty Studio. Todos os direitos reservados.</p>
+      <p>© {anoAtual} {nomeNegocio}. Todos os direitos reservados.</p>
       <p style={{ marginTop: '4px', fontSize: '0.75rem' }}>
         Desenvolvido com carinho para agendamentos ágeis no WhatsApp.
       </p>
