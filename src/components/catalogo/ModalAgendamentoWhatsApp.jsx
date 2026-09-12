@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useCarrinho } from '../../hooks/useCarrinho';
 import { ModalConfirmacao } from '../comum/ModalConfirmacao';
+
+/**
+ * Retorna a data local de hoje no formato YYYY-MM-DD para validação e atributo min
+ */
+function obterDataHojeLocal() {
+  const agora = new Date();
+  const ano = agora.getFullYear();
+  const mes = String(agora.getMonth() + 1).padStart(2, '0');
+  const dia = String(agora.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
 
 export function ModalAgendamentoWhatsApp() {
   const {
@@ -12,8 +23,11 @@ export function ModalAgendamentoWhatsApp() {
     removerServico
   } = useCarrinho();
 
+  const dataHoje = useMemo(() => obterDataHojeLocal(), []);
+
   const [nomeCliente, setNomeCliente] = useState('');
   const [dataPreferencial, setDataPreferencial] = useState('');
+  const [erroData, setErroData] = useState('');
   const [periodoPreferencial, setPeriodoPreferencial] = useState('manha');
   const [observacoes, setObservacoes] = useState('');
 
@@ -22,9 +36,26 @@ export function ModalAgendamentoWhatsApp() {
 
   if (!modalAberto) return null;
 
+  function lidarComMudancaData(e) {
+    const valor = e.target.value;
+    setDataPreferencial(valor);
+
+    if (valor && valor < dataHoje) {
+      setErroData('Por favor, selecione uma data a partir de hoje.');
+    } else {
+      setErroData('');
+    }
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!nomeCliente.trim()) return;
+
+    // Validação de segurança Fail-Fast: data deve ser igual ou superior à atual
+    if (dataPreferencial && dataPreferencial < dataHoje) {
+      setErroData('Por favor, selecione uma data a partir de hoje para seu agendamento.');
+      return;
+    }
 
     enviarParaWhatsApp({
       nomeCliente,
@@ -122,10 +153,21 @@ export function ModalAgendamentoWhatsApp() {
                 <input
                   type="date"
                   id="inputClienteData"
-                  className="form-input"
+                  min={dataHoje}
+                  className={`form-input ${erroData ? 'form-input-error' : ''}`}
                   value={dataPreferencial}
-                  onChange={(e) => setDataPreferencial(e.target.value)}
+                  onChange={lidarComMudancaData}
                 />
+                {erroData && (
+                  <div className="form-feedback-error" role="alert">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>{erroData}</span>
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
