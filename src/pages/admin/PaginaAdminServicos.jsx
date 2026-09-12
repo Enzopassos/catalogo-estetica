@@ -3,12 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { useCatalogo } from '../../hooks/useCatalogo';
 import { CardAdminServico } from '../../components/admin/CardAdminServico';
 import { ModalCriarEditarServico } from '../../components/admin/ModalCriarEditarServico';
+import { SkeletonCardServico } from '../../components/comum/SkeletonCard';
 
 export function PaginaAdminServicos() {
   const { categoriaSlug } = useParams();
   const {
     categorias,
     servicos,
+    carregando,
     criarServico,
     atualizarServico,
     alternarStatusServico,
@@ -86,7 +88,12 @@ export function PaginaAdminServicos() {
         </button>
       </div>
 
-      {servicosDaCategoria.length === 0 ? (
+      {carregando ? (
+        <div className="admin-items-grid" aria-busy="true" aria-label="Carregando procedimentos...">
+          <SkeletonCardServico />
+          <SkeletonCardServico />
+        </div>
+      ) : servicosDaCategoria.length === 0 ? (
         <div className="admin-empty-state">
           <div className="admin-empty-icon-wrap">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useCatalogo } from '../../hooks/useCatalogo';
 import { CardAdminCategoria } from '../../components/admin/CardAdminCategoria';
 import { ModalCriarEditarCategoria } from '../../components/admin/ModalCriarEditarCategoria';
+import { SkeletonCardCategoria } from '../../components/comum/SkeletonCard';
 
 export function PaginaAdminCategorias() {
-  const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCatalogo();
+  const { categorias, carregando, criarCategoria, atualizarCategoria, excluirCategoria } = useCatalogo();
 
   const [modalAberto, setModalAberto] = useState(false);
   const [categoriaEmEdicao, setCategoriaEmEdicao] = useState(null);
@@ -62,7 +63,13 @@ export function PaginaAdminCategorias() {
         </button>
       </div>
 
-      {categorias.length === 0 ? (
+      {carregando ? (
+        <div className="admin-items-grid" aria-busy="true" aria-label="Carregando categorias...">
+          <SkeletonCardCategoria />
+          <SkeletonCardCategoria />
+          <SkeletonCardCategoria />
+        </div>
+      ) : categorias.length === 0 ? (
         <div className="admin-empty-state">
           <div className="admin-empty-icon-wrap">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

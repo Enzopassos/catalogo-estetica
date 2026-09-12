@@ -363,6 +363,87 @@ button {
   color: var(--color-primary-red);
 }
 
+/* Barra de Pesquisa de Procedimentos */
+.search-bar-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.search-bar-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-bar-input-wrap:focus-within {
+  border-color: var(--color-primary-red);
+  box-shadow: 0 0 0 3px rgba(182, 26, 0, 0.08), 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.search-bar-icon {
+  color: var(--color-secondary);
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.search-bar-input {
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-on-surface);
+  outline: none;
+}
+
+.search-bar-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-bar-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.search-bar-clear-btn:hover {
+  background: #e5e7eb;
+  color: var(--color-primary-red);
+}
+
+.search-empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--color-secondary);
+  background: #ffffff;
+  border: 1px dashed var(--color-border-light);
+  border-radius: var(--radius-lg);
+  margin-top: 12px;
+}
+
+.search-empty-state svg {
+  color: var(--color-secondary);
+  opacity: 0.6;
+}
+
 .services-list {
   display: flex;
   flex-direction: column;
@@ -2167,6 +2248,11 @@ button {
     font-size: 0.88rem;
     padding: 9px 20px;
     margin-bottom: 24px;
+  }
+
+  .search-bar-container {
+    max-width: 520px;
+    margin-bottom: 28px;
   }
 
   .services-list {
