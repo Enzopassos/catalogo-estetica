@@ -26,8 +26,8 @@ export function CabecalhoMarca() {
           title={estaAutenticado ? 'Painel Administrativo' : 'Área da Profissional'}
         >
           <img
-            src="/images/I0H9wR3zSyPLDxG8mdDg_XMQUab25GgxFIX1c.jpg"
-            alt={`Logo ${nomeNegocio}`}
+            src={configuracoes?.logo_url || '/images/logo.jpg'}
+            alt={configuracoes?.nome_negocio || 'Logo Gabriela Beauty'}
             className="brand-icon-lips"
           />
         </Link>

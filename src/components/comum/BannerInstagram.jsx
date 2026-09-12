@@ -37,19 +37,15 @@ export function BannerInstagram() {
       <p className="insta-subtitle">Acompanhe transformações reais e bastidores no Instagram</p>
 
       <div className="insta-grid">
-        {imagensDinamicas.map((url, idx) => (
-          <div key={idx} className="insta-grid-item">
-            <img
-              src={url}
-              alt={`Galeria ${idx + 1}`}
-              loading="lazy"
-              onError={(e) => {
-                const padrao = ['/images/services/makeup_glam.png', '/images/services/brow_lamination.png', '/images/services/facial_spa.png'];
-                e.currentTarget.src = padrao[idx] || '/images/services/facial_spa.png';
-              }}
-            />
-          </div>
-        ))}
+        <div className="insta-grid-item">
+          <img src="/images/services/makeup_glam.webp" alt="Make Glam" loading="lazy" />
+        </div>
+        <div className="insta-grid-item">
+          <img src="/images/services/brow_lamination.webp" alt="Brow Lamination" loading="lazy" />
+        </div>
+        <div className="insta-grid-item">
+          <img src="/images/services/facial_spa.webp" alt="Facial Spa" loading="lazy" />
+        </div>
       </div>
 
       <a

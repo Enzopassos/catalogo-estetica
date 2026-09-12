@@ -66,7 +66,7 @@ export function UploadImagem({
   onAlterar,
   pasta = 'catalogo',
   label = 'Foto / Imagem de Capa',
-  placeholderPadrao = '/images/services/facial_spa.png'
+  placeholderPadrao = '/images/services/facial_spa.webp'
 }) {
   const [carregando, setCarregando] = useState(false);
   const [arrastando, setArrastando] = useState(false);

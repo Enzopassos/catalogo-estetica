@@ -1928,4 +1928,467 @@ button {
   color: #ffffff;
 }
 
+/* ==========================================================================
+   UTILITÁRIOS BASE COMPATÍVEIS (MOBILE-FIRST)
+   ========================================================================== */
+
+.form-row-responsive {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonials-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-config-container {
+  width: 100%;
+  max-width: 680px;
+}
+
+.brand-footer {
+  padding: 24px var(--margin-mobile);
+  text-align: center;
+  border-top: 1px solid var(--color-border-light);
+  font-size: 0.8rem;
+  color: var(--color-secondary);
+  background: #ffffff;
+  width: 100%;
+}
+
+.brand-footer-sub {
+  margin-top: 4px;
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   SHIMMER SKELETON LOADERS (Alta Percepção de Velocidade)
+   ========================================================================== */
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f3efee 25%, #faf7f6 50%, #f3efee 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s infinite linear;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-category-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.skeleton-category-img {
+  width: 100%;
+  height: 160px;
+}
+
+.skeleton-category-body {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skeleton-text-title {
+  height: 22px;
+  width: 140px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text-sub {
+  height: 14px;
+  width: 180px;
+  border-radius: 4px;
+}
+
+.skeleton-circle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   ADAPTAÇÃO RESPONSIVA WEB & DESKTOP (AURA COUTURE DESIGN)
+   Preserva 100% da identidade, cores e layout mobile abaixo de 768px.
+   ========================================================================== */
+
+/* Tablets Pequenos (>= 640px) */
+@media (min-width: 640px) {
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .category-card-img-wrap,
+  .skeleton-category-img {
+    height: 220px;
+  }
+
+  .category-card-title {
+    font-size: 1.35rem;
+  }
+}
+
+/* Tablets e Desktops (>= 768px) */
+@media (min-width: 768px) {
+  /* Fundo Completo da Tela na Web (Sem aspecto de card englobando tudo) */
+  body {
+    background-color: #ffffff;
+  }
+
+  .app-container {
+    max-width: 100%;
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  /* Cabeçalho Editorial Web em Largura Total */
+  .brand-header {
+    width: 100%;
+    padding: 38px 40px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-light);
+    background: #ffffff;
+  }
+
+  .brand-header-top {
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .brand-icon-lips {
+    width: 72px;
+    height: 72px;
+  }
+
+  .brand-title {
+    font-size: 2.75rem;
+    letter-spacing: -0.015em;
+  }
+
+  .brand-subtitle {
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+  }
+
+  /* Navegação de Categorias em Largura Total */
+  .category-nav {
+    width: 100%;
+    padding: 18px 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .chip {
+    padding: 10px 22px;
+    font-size: 0.9rem;
+  }
+
+  .chip:hover:not(.active) {
+    background: var(--color-surface-container-high);
+    border-color: rgba(182, 26, 0, 0.25);
+    color: var(--color-on-surface);
+  }
+
+  /* Seções com Largura Máxima Centralizada e Espaçosa */
+  .section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 44px 36px 130px;
+  }
+
+  .section-title-wrap {
+    margin-bottom: 30px;
+  }
+
+  .section-tag {
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    margin-bottom: 6px;
+  }
+
+  .headline-md {
+    font-size: 1.95rem;
+  }
+
+  /* Procedimentos: Grade de 2 Colunas */
+  .btn-back-categories {
+    font-size: 0.88rem;
+    padding: 9px 20px;
+    margin-bottom: 24px;
+  }
+
+  .services-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .service-card-image-wrap {
+    height: 215px;
+  }
+
+  .service-card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 24px;
+  }
+
+  .service-title {
+    font-size: 1.3rem;
+  }
+
+  .service-price {
+    font-size: 1.3rem;
+  }
+
+  .service-description {
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .btn-select-service {
+    margin-top: auto;
+  }
+
+  /* Barra de Agendamento Flutuante (Estilo Dock de Luxo) */
+  .sticky-cart-bar {
+    max-width: 700px;
+    bottom: 28px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    border: 1px solid rgba(182, 26, 0, 0.22);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(182, 26, 0, 0.08);
+    padding: 16px 28px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(14px);
+    animation: dockSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Modal de Agendamento WhatsApp Centralizado (Diálogo Elegante) */
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .bottom-sheet {
+    max-width: 620px;
+    border-radius: 24px;
+    padding: 30px 34px 34px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(182, 26, 0, 0.12);
+    animation: modalDesktopZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .sheet-handle {
+    display: none;
+  }
+
+  .sheet-title {
+    font-size: 1.45rem;
+  }
+
+  /* Linhas de Formulário com 2 Colunas no Desktop */
+  .form-row-responsive {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Grade de Depoimentos 2 Colunas */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .testimonial-card {
+    margin-bottom: 0;
+    padding: 24px 28px;
+  }
+
+  .testimonial-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Mural do Instagram Web */
+  .instagram-banner {
+    padding: 38px 42px;
+    margin-top: 52px;
+  }
+
+  .insta-handle {
+    font-size: 1.65rem;
+  }
+
+  .insta-grid {
+    max-width: 680px;
+    margin: 0 auto 22px;
+    gap: 16px;
+  }
+
+  .insta-grid-item {
+    border-radius: 12px;
+  }
+
+  /* Rodapé Web */
+  .brand-footer {
+    padding: 36px 40px;
+    font-size: 0.85rem;
+  }
+
+  /* Painel Administrativo Web */
+  .admin-layout-container {
+    padding: 28px 36px 90px;
+  }
+
+  .admin-top-nav {
+    padding: 16px 24px;
+    border-radius: 18px;
+  }
+
+  .admin-tabs-nav {
+    gap: 12px;
+  }
+
+  .admin-tab-btn {
+    padding: 12px 22px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Telas Desktops Widescreen (>= 1024px) */
+@media (min-width: 1024px) {
+  .section {
+    max-width: 1280px;
+    padding: 48px 40px 140px;
+  }
+
+  /* Grade de Categorias Ampliada e Imponente em 3 Colunas */
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .category-card,
+  .skeleton-category-card {
+    border-radius: 20px;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  }
+
+  .category-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(182, 26, 0, 0.35);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  }
+
+  .category-card-img-wrap,
+  .skeleton-category-img {
+    height: 260px; /* Aumentado consideravelmente para destaque editorial */
+  }
+
+  .category-card-badge {
+    bottom: 16px;
+    left: 16px;
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    font-weight: 800;
+  }
+
+  .category-card-body {
+    padding: 22px 24px;
+  }
+
+  .category-card-title {
+    font-size: 1.45rem;
+    margin-bottom: 6px;
+  }
+
+  .category-card-desc {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .category-card-action {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Painel Administrativo Widescreen */
+  .admin-layout-container {
+    max-width: 1240px;
+    padding: 34px 44px 100px;
+  }
+
+  .admin-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 26px;
+  }
+
+  .admin-config-container {
+    max-width: 900px;
+  }
+
+  .admin-modal-card {
+    max-width: 640px;
+    padding: 32px;
+    border-radius: 24px;
+  }
+}
+
+/* Animações Web Específicas */
+@keyframes dockSlideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes modalDesktopZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
 

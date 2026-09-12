@@ -7,17 +7,9 @@ export function Rodape() {
   const anoAtual = new Date().getFullYear();
 
   return (
-    <footer
-      style={{
-        padding: '24px var(--margin-mobile)',
-        textAlign: 'center',
-        borderTop: '1px solid var(--color-border-light)',
-        fontSize: '0.8rem',
-        color: 'var(--color-secondary)'
-      }}
-    >
-      <p>© {anoAtual} {nomeNegocio}. Todos os direitos reservados.</p>
-      <p style={{ marginTop: '4px', fontSize: '0.75rem' }}>
+    <footer className="brand-footer">
+      <p>© 2026 Gabriela Beauty Studio. Todos os direitos reservados.</p>
+      <p className="brand-footer-sub">
         Desenvolvido com carinho para agendamentos ágeis no WhatsApp.
       </p>
     </footer>

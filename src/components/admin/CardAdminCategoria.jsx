@@ -9,12 +9,12 @@ export function CardAdminCategoria({ categoria, onEditar, onExcluir }) {
     <div className="admin-item-card">
       <div className="admin-card-thumb-wrap">
         <img
-          src={categoria.imagem_url || '/images/services/facial_spa.png'}
+          src={categoria.imagem_url || '/images/services/facial_spa.webp'}
           alt={categoria.nome}
           className="admin-card-thumb"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = '/images/services/facial_spa.png';
+            e.currentTarget.src = '/images/services/facial_spa.webp';
           }}
         />
         <span className="admin-card-badge-count">{textoQtd}</span>

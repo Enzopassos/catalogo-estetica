@@ -31,7 +31,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
       setTitulo('');
       setPreco('');
       setDuracaoMinutos(60);
-      setImagemUrl('/images/services/makeup_glam.png');
+      setImagemUrl('/images/services/makeup_glam.webp');
       setDescricao('');
       setAtivo(true);
       setPossuiAdicionais(false);
@@ -82,7 +82,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
         titulo: titulo.trim(),
         preco: parseFloat(preco) || 0,
         duracao_minutos: parseInt(duracaoMinutos, 10) || 30,
-        imagem_url: imagemUrl.trim() || '/images/services/makeup_glam.png',
+        imagem_url: imagemUrl.trim() || '/images/services/makeup_glam.webp',
         descricao: descricao.trim(),
         adicionais: listaAdicionaisValidos,
         ativo,
@@ -167,7 +167,7 @@ export function ModalCriarEditarServico({ servico, categoria, aberto, onFechar, 
             onAlterar={setImagemUrl}
             pasta="servicos"
             label="Foto / Imagem do Procedimento *"
-            placeholderPadrao="/images/services/makeup_glam.png"
+            placeholderPadrao="/images/services/makeup_glam.webp"
           />
 
           <div className="form-group">

@@ -116,41 +116,43 @@ export function ModalAgendamentoWhatsApp() {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="inputClienteData" className="form-label">Data Preferencial (Opcional)</label>
-              <input
-                type="date"
-                id="inputClienteData"
-                className="form-input"
-                value={dataPreferencial}
-                onChange={(e) => setDataPreferencial(e.target.value)}
-              />
-            </div>
+            <div className="form-row-responsive">
+              <div className="form-group">
+                <label htmlFor="inputClienteData" className="form-label">Data Preferencial (Opcional)</label>
+                <input
+                  type="date"
+                  id="inputClienteData"
+                  className="form-input"
+                  value={dataPreferencial}
+                  onChange={(e) => setDataPreferencial(e.target.value)}
+                />
+              </div>
 
-            <div className="form-group">
-              <label className="form-label">Período Preferencial</label>
-              <div className="period-selector">
-                <button
-                  type="button"
-                  className={`period-chip ${periodoPreferencial === 'manha' ? 'active' : ''}`}
-                  onClick={() => setPeriodoPreferencial('manha')}
-                >
-                  Manhã
-                </button>
-                <button
-                  type="button"
-                  className={`period-chip ${periodoPreferencial === 'tarde' ? 'active' : ''}`}
-                  onClick={() => setPeriodoPreferencial('tarde')}
-                >
-                  Tarde
-                </button>
-                <button
-                  type="button"
-                  className={`period-chip ${periodoPreferencial === 'indiferente' ? 'active' : ''}`}
-                  onClick={() => setPeriodoPreferencial('indiferente')}
-                >
-                  Qualquer
-                </button>
+              <div className="form-group">
+                <label className="form-label">Período Preferencial</label>
+                <div className="period-selector">
+                  <button
+                    type="button"
+                    className={`period-chip ${periodoPreferencial === 'manha' ? 'active' : ''}`}
+                    onClick={() => setPeriodoPreferencial('manha')}
+                  >
+                    Manhã
+                  </button>
+                  <button
+                    type="button"
+                    className={`period-chip ${periodoPreferencial === 'tarde' ? 'active' : ''}`}
+                    onClick={() => setPeriodoPreferencial('tarde')}
+                  >
+                    Tarde
+                  </button>
+                  <button
+                    type="button"
+                    className={`period-chip ${periodoPreferencial === 'indiferente' ? 'active' : ''}`}
+                    onClick={() => setPeriodoPreferencial('indiferente')}
+                  >
+                    Qualquer
+                  </button>
+                </div>
               </div>
             </div>
 

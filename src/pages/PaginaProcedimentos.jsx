@@ -6,6 +6,7 @@ import { BarraNavegacaoCategorias } from '../components/catalogo/BarraNavegacaoC
 import { CardServico } from '../components/catalogo/CardServico';
 import { BarraCarrinhoFlutuante } from '../components/catalogo/BarraCarrinhoFlutuante';
 import { ModalAgendamentoWhatsApp } from '../components/catalogo/ModalAgendamentoWhatsApp';
+import { SkeletonCardServico } from '../components/comum/SkeletonCard';
 import { useCatalogo } from '../hooks/useCatalogo';
 
 export function PaginaProcedimentos() {
@@ -44,8 +45,9 @@ export function PaginaProcedimentos() {
         </div>
 
         {carregando ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-secondary)' }}>
-            Carregando procedimentos...
+          <div className="services-list" aria-busy="true" aria-label="Carregando procedimentos...">
+            <SkeletonCardServico />
+            <SkeletonCardServico />
           </div>
         ) : servicosFiltrados.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 16px', color: 'var(--color-secondary)' }}>

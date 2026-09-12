@@ -25,8 +25,8 @@ export function LayoutAdmin() {
       <header className="admin-top-nav">
         <div className="admin-nav-brand">
           <img
-            src="/images/I0H9wR3zSyPLDxG8mdDg_XMQUab25GgxFIX1c.jpg"
-            alt={configuracoes?.nome_negocio || 'Studio de Beleza'}
+            src={configuracoes?.logo_url || '/images/logo.jpg'}
+            alt={configuracoes?.nome_negocio || 'Gabriela Beauty'}
             className="admin-nav-avatar"
           />
           <div className="admin-brand-texts">

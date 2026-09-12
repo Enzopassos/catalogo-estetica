@@ -24,7 +24,7 @@ export function PaginaAdminConfig() {
     e.preventDefault();
     setSalvando(true);
     setSucesso(false);
-
+    
     try {
       await salvarConfiguracoes({
         nome_negocio: nomeNegocio.trim(),
@@ -42,7 +42,7 @@ export function PaginaAdminConfig() {
   }
 
   return (
-    <div style={{ maxWidth: '680px' }}>
+    <div className="admin-config-container">
       <div className="admin-section-header">
         <div>
           <span className="section-tag">Configurações Gerais</span>
@@ -78,28 +78,30 @@ export function PaginaAdminConfig() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="inputConfigNome" className="form-label">Nome da Profissional / Marca *</label>
-            <input
-              type="text"
-              id="inputConfigNome"
-              className="form-input"
-              value={nomeNegocio}
-              onChange={(e) => setNomeNegocio(e.target.value)}
-              required
-            />
-          </div>
+          <div className="form-row-responsive">
+            <div className="form-group">
+              <label htmlFor="inputConfigNome" className="form-label">Nome da Profissional / Marca *</label>
+              <input
+                type="text"
+                id="inputConfigNome"
+                className="form-input"
+                value={nomeNegocio}
+                onChange={(e) => setNomeNegocio(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="inputConfigSubtitulo" className="form-label">Subtítulo / Especialidades *</label>
-            <input
-              type="text"
-              id="inputConfigSubtitulo"
-              className="form-input"
-              value={subtitulo}
-              onChange={(e) => setSubtitulo(e.target.value)}
-              required
-            />
+            <div className="form-group">
+              <label htmlFor="inputConfigSubtitulo" className="form-label">Subtítulo / Especialidades *</label>
+              <input
+                type="text"
+                id="inputConfigSubtitulo"
+                className="form-input"
+                value={subtitulo}
+                onChange={(e) => setSubtitulo(e.target.value)}
+                required
+              />
+            </div>
           </div>
         </div>
 

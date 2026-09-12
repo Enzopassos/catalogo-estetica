@@ -16,12 +16,12 @@ export function CardAdminServico({ servico, onToggleStatus, onEditar, onExcluir 
     <div className={`admin-item-card ${servico.ativo ? '' : 'inactive'}`}>
       <div className="admin-card-thumb-wrap">
         <img
-          src={servico.imagem_url || '/images/services/makeup_glam.png'}
+          src={servico.imagem_url || '/images/services/makeup_glam.webp'}
           alt={servico.titulo}
           className="admin-card-thumb"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = '/images/services/makeup_glam.png';
+            e.currentTarget.src = '/images/services/makeup_glam.webp';
           }}
         />
         <span className={`admin-card-status-badge ${servico.ativo ? 'status-ativo' : 'status-inativo'}`}>

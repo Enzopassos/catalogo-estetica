@@ -9,12 +9,12 @@ export function CardCategoria({ categoria }) {
     <Link to={`/categoria/${categoria.slug}`} className="category-card touch-active">
       <div className="category-card-img-wrap">
         <img
-          src={categoria.imagem_url || '/images/services/facial_spa.png'}
+          src={categoria.imagem_url || '/images/services/facial_spa.webp'}
           alt={categoria.nome}
           className="category-card-img"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = '/images/services/facial_spa.png';
+            e.currentTarget.src = '/images/services/facial_spa.webp';
           }}
         />
         <span className="category-card-badge">{textoQtd}</span>

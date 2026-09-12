@@ -6,6 +6,7 @@ import { SecaoDepoimentos } from '../components/comum/SecaoDepoimentos';
 import { CardCategoria } from '../components/catalogo/CardCategoria';
 import { BarraCarrinhoFlutuante } from '../components/catalogo/BarraCarrinhoFlutuante';
 import { ModalAgendamentoWhatsApp } from '../components/catalogo/ModalAgendamentoWhatsApp';
+import { SkeletonCardCategoria } from '../components/comum/SkeletonCard';
 import { useCatalogo } from '../hooks/useCatalogo';
 
 export function PaginaCatalogoCategorias() {
@@ -25,8 +26,10 @@ export function PaginaCatalogoCategorias() {
         </div>
 
         {carregando ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-secondary)' }}>
-            Carregando categorias...
+          <div className="categories-grid" aria-busy="true" aria-label="Carregando categorias...">
+            <SkeletonCardCategoria />
+            <SkeletonCardCategoria />
+            <SkeletonCardCategoria />
           </div>
         ) : (
           <div className="categories-grid">

@@ -1,14 +1,50 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../database/clienteSupabase';
 
-// Dados de contingência (Fallback) caso o banco ainda esteja inicializando
+// Chave para cache local de alta performance (Stale-While-Revalidate)
+const CHAVE_CACHE_CATALOGO = 'gabriela_cache_catalogo_v1';
+
+function obterCacheInicialCatalogo() {
+  try {
+    const salvo = localStorage.getItem(CHAVE_CACHE_CATALOGO);
+    if (salvo) {
+      const parsed = JSON.parse(salvo);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          categorias: Array.isArray(parsed.categorias) ? parsed.categorias : null,
+          servicos: Array.isArray(parsed.servicos) ? parsed.servicos : null,
+          configuracoes: parsed.configuracoes && typeof parsed.configuracoes === 'object' ? parsed.configuracoes : null,
+          temCache: true
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Erro ao ler cache do catálogo:', err);
+  }
+  return { categorias: null, servicos: null, configuracoes: null, temCache: false };
+}
+
+function salvarCacheCatalogo(dados) {
+  try {
+    localStorage.setItem(CHAVE_CACHE_CATALOGO, JSON.stringify({
+      categorias: dados.categorias,
+      servicos: dados.servicos,
+      configuracoes: dados.configuracoes,
+      atualizado_em: Date.now()
+    }));
+  } catch (err) {
+    console.warn('Erro ao salvar cache do catálogo no localStorage:', err);
+  }
+}
+
+// Dados de contingência (Fallback) caso o banco ainda esteja inicializando ou sem conexão
 const CATEGORIAS_PADRAO = [
   {
     id: 'cat-maq',
     nome: 'Maquiagem',
     slug: 'maquiagem',
     descricao: 'Social Glam, Noivas & Madrinhas',
-    imagem_url: '/images/services/makeup_glam.png',
+    imagem_url: '/images/services/makeup_glam.webp',
     ordem: 1
   },
   {
@@ -16,7 +52,7 @@ const CATEGORIAS_PADRAO = [
     nome: 'Sobrancelha',
     slug: 'sobrancelha',
     descricao: 'Brow Lamination & Design com Henna',
-    imagem_url: '/images/services/brow_lamination.png',
+    imagem_url: '/images/services/brow_lamination.webp',
     ordem: 2
   },
   {
@@ -24,7 +60,7 @@ const CATEGORIAS_PADRAO = [
     nome: 'Estética Geral',
     slug: 'estetica',
     descricao: 'Limpeza de Pele Deep Glow & Spa Labial',
-    imagem_url: '/images/services/facial_spa.png',
+    imagem_url: '/images/services/facial_spa.webp',
     ordem: 3
   }
 ];
@@ -37,7 +73,7 @@ const SERVICOS_PADRAO = [
     preco: 180.00,
     duracao_minutos: 60,
     descricao: 'Produção completa com técnicas de iluminação, pele blindada resistente à água e suor, cílios de alta qualidade e acabamento editorial duradouro.',
-    imagem_url: '/images/services/makeup_glam.png',
+    imagem_url: '/images/services/makeup_glam.webp',
     adicionais: [
       { id: 'cilios-3d', nome: 'Cílios 3D Premium', preco: 25.00 },
       { id: 'prep-express', nome: 'Skincare Prep Glow', preco: 30.00 }
@@ -52,7 +88,7 @@ const SERVICOS_PADRAO = [
     preco: 280.00,
     duracao_minutos: 90,
     descricao: 'Maquiagem ultra resistente com consultoria prévia de estilo, fixação HD para foto e vídeo, hidratação profunda e produtos de alta costura.',
-    imagem_url: '/images/services/makeup_glam.png',
+    imagem_url: '/images/services/makeup_glam.webp',
     adicionais: [
       { id: 'kit-retoque', nome: 'Kit Retoque Batom & Pó', preco: 35.00 },
       { id: 'colo-glow', nome: 'Iluminação de Colo e Ombros', preco: 40.00 }
@@ -67,7 +103,7 @@ const SERVICOS_PADRAO = [
     preco: 130.00,
     duracao_minutos: 50,
     descricao: 'Técnica de alinhamento dos fios naturais para sobrancelhas mais encorpadas, selvagens e alinhadas. Inclui design geométrico e nutrição com vitaminas.',
-    imagem_url: '/images/services/brow_lamination.png',
+    imagem_url: '/images/services/brow_lamination.webp',
     adicionais: [
       { id: 'tintura-fios', nome: 'Coloração de Fios (Refectocil)', preco: 30.00 },
       { id: 'spa-sobrancelha', nome: 'Argiloterapia Calmante', preco: 20.00 }
@@ -82,7 +118,7 @@ const SERVICOS_PADRAO = [
     preco: 75.00,
     duracao_minutos: 40,
     descricao: 'Mapeamento facial exclusivo de acordo com visagismo, remoção precisa de fios com pinça/linha e aplicação de henna natural sob medida.',
-    imagem_url: '/images/services/brow_lamination.png',
+    imagem_url: '/images/services/brow_lamination.webp',
     adicionais: [
       { id: 'nutricao-fios', nome: 'Nutrição com Óleo de Rícino Pure', preco: 15.00 }
     ],
@@ -96,7 +132,7 @@ const SERVICOS_PADRAO = [
     preco: 150.00,
     duracao_minutos: 75,
     descricao: 'Protocolo de higienização profunda, emoliência sem dor, extração de cravos, peeling ultrassônico, máscara calmante e fototerapia LED.',
-    imagem_url: '/images/services/facial_spa.png',
+    imagem_url: '/images/services/facial_spa.webp',
     adicionais: [
       { id: 'mascara-ouro', nome: 'Máscara Hidratante Ouro 24k', preco: 45.00 },
       { id: 'massagem-jade', nome: 'Massagem Facial com Roller Jade', preco: 25.00 }
@@ -111,7 +147,7 @@ const SERVICOS_PADRAO = [
     preco: 90.00,
     duracao_minutos: 35,
     descricao: 'Tratamento regenerador intensivo com microagulhamento de ácido hialurônico e esfoliação suave. Remove pelinhas, hidrata profundamente e proporciona efeito pump volumoso natural.',
-    imagem_url: '/images/services/facial_spa.png',
+    imagem_url: '/images/services/facial_spa.webp',
     adicionais: [
       { id: 'gloss-homecare', nome: 'Gloss Regenerador Homecare', preco: 35.00 }
     ],
@@ -123,8 +159,9 @@ const SERVICOS_PADRAO = [
 const CONFIG_PADRAO = {
   nome_negocio: 'Gabriela Passos',
   subtitulo: 'Maquiagem • Sobrancelhas • Estética',
-  whatsapp_numero: '',
-  instagram_usuario: ''
+  whatsapp_numero: '5511999999999',
+  instagram_usuario: 'gabriela.beauty',
+  logo_url: '/images/logo.jpg'
 };
 
 /**
@@ -144,13 +181,22 @@ function normalizarImagemUrl(url, fallback = '/images/services/facial_spa.png') 
 const ContextoCatalogo = createContext(null);
 
 export function ProvedorCatalogo({ children }) {
-  const [categorias, setCategorias] = useState([]);
-  const [servicos, setServicos] = useState([]);
-  const [configuracoes, setConfiguracoes] = useState(null);
-  const [carregando, setCarregando] = useState(true);
+  // Inicialização com cache local para exibição instantânea (0ms)
+  const cacheRef = useRef(obterCacheInicialCatalogo());
+  const cache = cacheRef.current;
 
-  const carregarDados = useCallback(async () => {
-    setCarregando(true);
+  const [categorias, setCategorias] = useState(() => cache.categorias || CATEGORIAS_PADRAO);
+  const [servicos, setServicos] = useState(() => cache.servicos || SERVICOS_PADRAO);
+  const [configuracoes, setConfiguracoes] = useState(() => cache.configuracoes || CONFIG_PADRAO);
+  
+  // Se já temos cache, a interface carrega instantaneamente sem tela de loading
+  const [carregando, setCarregando] = useState(!cache.temCache);
+
+  // Sincronização em background com Supabase (Stale-While-Revalidate)
+  const carregarDados = useCallback(async (forcarExibicaoCarregando = false) => {
+    if (forcarExibicaoCarregando) {
+      setCarregando(true);
+    }
     try {
       const [resCat, resServ, resConf] = await Promise.allSettled([
         supabase.from('catalogo_categorias').select('*').order('ordem', { ascending: true }),
@@ -158,38 +204,46 @@ export function ProvedorCatalogo({ children }) {
         supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false }).limit(1).maybeSingle()
       ]);
 
-      if (resCat.status === 'fulfilled' && resCat.value?.data && resCat.value.data.length > 0) {
-        setCategorias(resCat.value.data.map(cat => ({
-          ...cat,
-          imagem_url: normalizarImagemUrl(cat.imagem_url, '/images/services/facial_spa.png')
-        })));
-      } else {
+      let novasCats = null;
+      let novosServs = null;
+      let novasConfs = null;
+
+      // 1. Categorias
+      if (resCat.status === 'fulfilled' && !resCat.value?.error && Array.isArray(resCat.value?.data)) {
+        novasCats = resCat.value.data;
+        setCategorias(novasCats);
+      } else if (!cache.temCache) {
         setCategorias(CATEGORIAS_PADRAO);
       }
 
-      if (resServ.status === 'fulfilled' && resServ.value?.data && resServ.value.data.length > 0) {
-        setServicos(resServ.value.data.map(serv => ({
-          ...serv,
-          imagem_url: normalizarImagemUrl(serv.imagem_url, '/images/services/makeup_glam.png')
-        })));
-      } else {
+      // 2. Serviços
+      if (resServ.status === 'fulfilled' && !resServ.value?.error && Array.isArray(resServ.value?.data)) {
+        novosServs = resServ.value.data;
+        setServicos(novosServs);
+      } else if (!cache.temCache) {
         setServicos(SERVICOS_PADRAO);
       }
 
-      if (resConf.status === 'fulfilled' && resConf.value?.data) {
-        setConfiguracoes(resConf.value.data);
-      } else {
+      // 3. Configurações
+      if (resConf.status === 'fulfilled' && !resConf.value?.error && resConf.value?.data) {
+        novasConfs = resConf.value.data;
+        setConfiguracoes(novasConfs);
+      } else if (!cache.temCache) {
         setConfiguracoes(CONFIG_PADRAO);
       }
+
+      // Atualiza o cache local com os dados mais recentes do banco
+      salvarCacheCatalogo({
+        categorias: novasCats || cache.categorias || CATEGORIAS_PADRAO,
+        servicos: novosServs || cache.servicos || SERVICOS_PADRAO,
+        configuracoes: novasConfs || cache.configuracoes || CONFIG_PADRAO
+      });
     } catch (e) {
-      console.warn('Usando catálogo local padrão:', e);
-      setCategorias(CATEGORIAS_PADRAO);
-      setServicos(SERVICOS_PADRAO);
-      setConfiguracoes(CONFIG_PADRAO);
+      console.warn('Falha na sincronização em background com o Supabase:', e);
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [cache]);
 
   useEffect(() => {
     carregarDados();
@@ -210,7 +264,7 @@ export function ProvedorCatalogo({ children }) {
       nome: dados.nome.trim(),
       slug,
       descricao: dados.descricao?.trim() || '',
-      imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/facial_spa.png'),
+      imagem_url: dados.imagem_url?.trim() || '/images/services/facial_spa.webp',
       ordem: Number(dados.ordem) || (categorias.length + 1)
     };
 
@@ -257,7 +311,7 @@ export function ProvedorCatalogo({ children }) {
       descricao: dados.descricao?.trim() || '',
       preco: Number(dados.preco) || 0,
       duracao_minutos: Number(dados.duracao_minutos) || 30,
-      imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/makeup_glam.png'),
+      imagem_url: dados.imagem_url?.trim() || '/images/services/makeup_glam.webp',
       adicionais: dados.adicionais || [],
       ativo: dados.ativo !== undefined ? dados.ativo : true,
       ordem: Number(dados.ordem) || (servicos.length + 1)
@@ -279,7 +333,7 @@ export function ProvedorCatalogo({ children }) {
         descricao: dados.descricao?.trim() || '',
         preco: Number(dados.preco) || 0,
         duracao_minutos: Number(dados.duracao_minutos) || 30,
-        imagem_url: normalizarImagemUrl(dados.imagem_url, '/images/services/makeup_glam.png'),
+        imagem_url: dados.imagem_url?.trim() || '/images/services/makeup_glam.webp',
         adicionais: dados.adicionais || [],
         ativo: dados.ativo !== undefined ? dados.ativo : true,
         ordem: Number(dados.ordem) || 0,

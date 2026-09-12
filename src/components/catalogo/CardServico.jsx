@@ -21,12 +21,12 @@ export function CardServico({ servico, nomeCategoria }) {
     <article className={`service-card ${isSelected ? 'selected' : ''}`}>
       <div className="service-card-image-wrap">
         <img
-          src={servico.imagem_url || '/images/services/makeup_glam.png'}
+          src={servico.imagem_url || '/images/services/makeup_glam.webp'}
           alt={servico.titulo}
           className="service-card-image"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = '/images/services/makeup_glam.png';
+            e.currentTarget.src = '/images/services/makeup_glam.webp';
           }}
         />
         <span className="service-badge-category">{nomeCategoria || 'Estética'}</span>

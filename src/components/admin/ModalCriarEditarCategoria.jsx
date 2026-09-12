@@ -16,7 +16,7 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
       setDescricao(categoria.descricao || '');
     } else {
       setNome('');
-      setImagemUrl('/images/services/facial_spa.png');
+      setImagemUrl('/images/services/facial_spa.webp');
       setDescricao('');
     }
   }, [categoria, aberto]);
@@ -32,7 +32,7 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
       await onSalvar({
         id: categoria?.id,
         nome: nome.trim(),
-        imagem_url: imagemUrl.trim() || '/images/services/facial_spa.png',
+        imagem_url: imagemUrl.trim() || '/images/services/facial_spa.webp',
         descricao: descricao.trim(),
         ordem: categoria?.ordem || 0
       });
@@ -79,7 +79,7 @@ export function ModalCriarEditarCategoria({ categoria, aberto, onFechar, onSalva
             onAlterar={setImagemUrl}
             pasta="categorias"
             label="Foto de Capa da Categoria *"
-            placeholderPadrao="/images/services/facial_spa.png"
+            placeholderPadrao="/images/services/facial_spa.webp"
           />
 
           <div className="form-group">

@@ -1,14 +1,72 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { useCatalogo } from './ContextoCatalogo';
 
 const ContextoCarrinho = createContext(null);
+const CHAVE_STORAGE_CARRINHO = 'gabriela_carrinho_agendamento_v1';
+
+function serializarCarrinhoParaStorage(mapaItens) {
+  try {
+    const lista = [];
+    mapaItens.forEach((item, id) => {
+      lista.push({
+        id,
+        servico: item.servico,
+        adicionais: Array.from(item.adicionais || [])
+      });
+    });
+    return JSON.stringify(lista);
+  } catch (err) {
+    console.error('Erro ao serializar carrinho para storage:', err);
+    return null;
+  }
+}
+
+function carregarCarrinhoDoStorage() {
+  try {
+    const salvo = localStorage.getItem(CHAVE_STORAGE_CARRINHO);
+    if (!salvo) return new Map();
+    const lista = JSON.parse(salvo);
+    if (!Array.isArray(lista)) return new Map();
+
+    const mapa = new Map();
+    lista.forEach(item => {
+      if (item && item.id && item.servico) {
+        mapa.set(item.id, {
+          servico: item.servico,
+          adicionais: new Set(Array.isArray(item.adicionais) ? item.adicionais : [])
+        });
+      }
+    });
+    return mapa;
+  } catch (err) {
+    console.warn('Erro ao restaurar carrinho do storage:', err);
+    return new Map();
+  }
+}
 
 export function ProvedorCarrinho({ children }) {
   const { configuracoes } = useCatalogo();
   
   // Estrutura: Map de serviceId -> { servico, adicionaisSelecionados: Set<addonId> }
-  const [itensSelecionados, setItensSelecionados] = useState(new Map());
+  // Inicializa automaticamente com dados persistidos no localStorage (se existirem)
+  const [itensSelecionados, setItensSelecionados] = useState(() => carregarCarrinhoDoStorage());
   const [modalAberto, setModalAberto] = useState(false);
+
+  // Sincroniza o carrinho com o localStorage a cada alteração
+  useEffect(() => {
+    try {
+      if (itensSelecionados.size === 0) {
+        localStorage.removeItem(CHAVE_STORAGE_CARRINHO);
+      } else {
+        const serializado = serializarCarrinhoParaStorage(itensSelecionados);
+        if (serializado) {
+          localStorage.setItem(CHAVE_STORAGE_CARRINHO, serializado);
+        }
+      }
+    } catch (err) {
+      console.warn('Não foi possível persistir o carrinho no localStorage:', err);
+    }
+  }, [itensSelecionados]);
 
   function alternarServico(servico) {
     setItensSelecionados(prev => {
@@ -69,6 +127,9 @@ export function ProvedorCarrinho({ children }) {
   function limparCarrinho() {
     setItensSelecionados(new Map());
     setModalAberto(false);
+    try {
+      localStorage.removeItem(CHAVE_STORAGE_CARRINHO);
+    } catch {}
   }
 
   // Cálculos de totais
@@ -114,8 +175,8 @@ export function ProvedorCarrinho({ children }) {
   function enviarParaWhatsApp({ nomeCliente, dataPreferencial, periodoPreferencial, observacoes }) {
     if (resumoItens.length === 0) return;
 
-    const nomeDestino = configuracoes?.nome_negocio || 'Studio de Beleza';
-    let mensagem = `*Olá, ${nomeDestino}! Gostaria de agendar os seguintes procedimentos:*\n\n`;
+    const nomeProfissional = configuracoes?.nome_negocio || 'Gabriela';
+    let mensagem = `*Olá, ${nomeProfissional}! Gostaria de agendar os seguintes procedimentos:*\n\n`;
 
     resumoItens.forEach(({ servico, adicionais, subtotal }, index) => {
       mensagem += `*${index + 1}. ${servico.titulo}*\n`;
