@@ -1,66 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { supabase } from '../../database/clienteSupabase';
 import { ModalConfirmacao } from '../comum/ModalConfirmacao';
-
-/**
- * Utilitário para redimensionar e compactar imagem no navegador (Canvas API)
- * Reduz fotos pesadas de celulares (10-15MB) para WebP/JPEG leve (~100-250kb) mantendo nitidez.
- */
-function compactarImagem(arquivo, maxLargura = 1200, maxAltura = 1200, qualidade = 0.85) {
-  return new Promise((resolve, reject) => {
-    const leitor = new FileReader();
-    leitor.readAsDataURL(arquivo);
-    leitor.onload = (evento) => {
-      const img = new Image();
-      img.src = evento.target.result;
-      img.onload = () => {
-        let largura = img.width;
-        let altura = img.height;
-
-        if (largura > altura) {
-          if (largura > maxLargura) {
-            altura = Math.round((altura * maxLargura) / largura);
-            largura = maxLargura;
-          }
-        } else {
-          if (altura > maxAltura) {
-            largura = Math.round((largura * maxAltura) / altura);
-            altura = maxAltura;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = largura;
-        canvas.height = altura;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, largura, altura);
-
-        try {
-          const base64Data = canvas.toDataURL('image/webp', qualidade);
-          canvas.toBlob(
-            (blob) => {
-              resolve({ blob: blob || arquivo, base64: base64Data });
-            },
-            'image/webp',
-            qualidade
-          );
-        } catch {
-          const base64Data = canvas.toDataURL('image/jpeg', qualidade);
-          canvas.toBlob(
-            (blob) => {
-              resolve({ blob: blob || arquivo, base64: base64Data });
-            },
-            'image/jpeg',
-            qualidade
-          );
-        }
-      };
-      img.onerror = (err) => reject(err);
-    };
-    leitor.onerror = (err) => reject(err);
-  });
-}
+import { ModalCropImagem } from './ModalCropImagem';
 
 export function UploadImagem({
   valor = '',
@@ -76,26 +17,37 @@ export function UploadImagem({
   const [mostrarCampoUrl, setMostrarCampoUrl] = useState(false);
   const [urlManual, setUrlManual] = useState('');
   const [modalConfirmarAberto, setModalConfirmarAberto] = useState(false);
+  const [modalCropAberto, setModalCropAberto] = useState(false);
+  const [imagemParaCortar, setImagemParaCortar] = useState(null);
+  const [nomeArquivoOriginal, setNomeArquivoOriginal] = useState('foto.webp');
   const inputRef = useRef(null);
 
-  async function processarArquivo(arquivo) {
+  function prepararArquivoParaCrop(arquivo) {
     if (!arquivo || !arquivo.type.startsWith('image/')) {
       alert('Por favor, selecione um arquivo de imagem válido (JPG, PNG, WEBP).');
       return;
     }
+    setNomeArquivoOriginal(arquivo.name || 'foto.webp');
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      setImagemParaCortar(leitor.result);
+      setModalCropAberto(true);
+    };
+    leitor.readAsDataURL(arquivo);
+  }
 
+  async function handleCropConfirmado({ blob, base64 }) {
+    setModalCropAberto(false);
     setCarregando(true);
     try {
-      // 1. Compacta a imagem no navegador para rapidez e alta qualidade
-      const { blob, base64 } = await compactarImagem(arquivo);
-
-      // 2. Tenta fazer upload para o Supabase Storage no bucket "catalogo"
-      const nomeArquivo = `${pasta}/${Date.now()}_${arquivo.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const nomeBase = nomeArquivoOriginal.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+      const nomeArquivo = `${pasta}/${Date.now()}_${nomeBase}.webp`;
 
       try {
         const { data, error } = await supabase.storage
           .from('catalogo')
           .upload(nomeArquivo, blob, {
+            contentType: 'image/webp',
             cacheControl: '3600',
             upsert: true
           });
@@ -109,13 +61,13 @@ export function UploadImagem({
           }
         }
       } catch (storageErr) {
-        console.warn('Supabase Storage indisponível, utilizando fallback em Base64 otimizado:', storageErr);
+        console.warn('Supabase Storage indisponível, utilizando fallback em WebP otimizado:', storageErr);
       }
 
-      // 3. Fallback inteligente: Salva a imagem compactada em Base64 diretamente
+      // Fallback seguro: Salva o WebP recortado e comprimido (< 60 KB)
       onAlterar(base64);
     } catch (err) {
-      console.error('Erro ao processar imagem:', err);
+      console.error('Erro ao processar imagem recortada:', err);
       alert('Não foi possível processar a imagem selecionada.');
     } finally {
       setCarregando(false);
@@ -125,7 +77,11 @@ export function UploadImagem({
   function handleFileChange(e) {
     const files = e.target.files;
     if (files && files.length > 0) {
-      processarArquivo(files[0]);
+      prepararArquivoParaCrop(files[0]);
+    }
+    // Reseta o input para permitir selecionar o mesmo arquivo novamente
+    if (inputRef.current) {
+      inputRef.current.value = '';
     }
   }
 
@@ -144,7 +100,7 @@ export function UploadImagem({
     setArrastando(false);
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      processarArquivo(files[0]);
+      prepararArquivoParaCrop(files[0]);
     }
   }
 
@@ -309,6 +265,17 @@ export function UploadImagem({
         textoCancelar="Cancelar"
         onConfirmar={handleConfirmarRemocao}
         onCancelar={() => setModalConfirmarAberto(false)}
+      />
+
+      {/* Modal Interativo de Crop e Enquadramento de Foto */}
+      <ModalCropImagem
+        aberto={modalCropAberto}
+        imagemSrc={imagemParaCortar}
+        onConfirmar={handleCropConfirmado}
+        onCancelar={() => {
+          setModalCropAberto(false);
+          setImagemParaCortar(null);
+        }}
       />
     </div>
   );

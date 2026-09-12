@@ -4,6 +4,32 @@ import { supabase } from '../database/clienteSupabase';
 // Chave para cache local de alta performance (Stale-While-Revalidate)
 const CHAVE_CACHE_CATALOGO = 'gabriela_cache_catalogo_v1';
 
+/**
+ * Normaliza e otimiza itens para exibição e armazenamento em cache,
+ * substituindo Base64 pesados residuais pelas URLs locais ou de Storage correspondentes.
+ */
+function sanitizarItemParaExibicaoECache(item, tipo = 'servicos') {
+  if (!item || typeof item !== 'object') return item;
+  let url = item.imagem_url;
+
+  if (url && typeof url === 'string' && url.startsWith('data:image')) {
+    const nomeBase = (item.titulo || item.nome || 'item')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '_')
+      .replace(/_+/g, '_')
+      .slice(0, 40);
+    const idCurto = item.id ? item.id.slice(0, 8) : 'foto';
+    url = `/images/catalogo/${tipo}/${nomeBase}_${idCurto}.png`;
+  }
+
+  return {
+    ...item,
+    imagem_url: url
+  };
+}
+
 function obterCacheInicialCatalogo() {
   try {
     const salvo = localStorage.getItem(CHAVE_CACHE_CATALOGO);
@@ -27,13 +53,22 @@ function obterCacheInicialCatalogo() {
 
 function salvarCacheCatalogo(dados) {
   try {
-    localStorage.setItem(CHAVE_CACHE_CATALOGO, JSON.stringify({
-      categorias: dados.categorias,
-      servicos: dados.servicos,
+    const catsLimpos = Array.isArray(dados.categorias)
+      ? dados.categorias.map(c => sanitizarItemParaExibicaoECache(c, 'categorias'))
+      : dados.categorias;
+    const servsLimpos = Array.isArray(dados.servicos)
+      ? dados.servicos.map(s => sanitizarItemParaExibicaoECache(s, 'servicos'))
+      : dados.servicos;
+
+    const serializado = JSON.stringify({
+      categorias: catsLimpos,
+      servicos: servsLimpos,
       configuracoes: dados.configuracoes,
       avaliacoes: dados.avaliacoes,
       atualizado_em: Date.now()
-    }));
+    });
+
+    localStorage.setItem(CHAVE_CACHE_CATALOGO, serializado);
   } catch (err) {
     console.warn('Erro ao salvar cache do catálogo no localStorage:', err);
   }
@@ -220,7 +255,7 @@ export function ProvedorCatalogo({ children }) {
 
       // 1. Categorias
       if (resCat.status === 'fulfilled' && !resCat.value?.error && Array.isArray(resCat.value?.data)) {
-        novasCats = resCat.value.data;
+        novasCats = resCat.value.data.map(c => sanitizarItemParaExibicaoECache(c, 'categorias'));
         setCategorias(novasCats);
       } else if (!cache.temCache) {
         setCategorias(CATEGORIAS_PADRAO);
@@ -228,7 +263,7 @@ export function ProvedorCatalogo({ children }) {
 
       // 2. Serviços
       if (resServ.status === 'fulfilled' && !resServ.value?.error && Array.isArray(resServ.value?.data)) {
-        novosServs = resServ.value.data;
+        novosServs = resServ.value.data.map(s => sanitizarItemParaExibicaoECache(s, 'servicos'));
         setServicos(novosServs);
       } else if (!cache.temCache) {
         setServicos(SERVICOS_PADRAO);
