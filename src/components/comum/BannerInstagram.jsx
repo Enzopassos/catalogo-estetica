@@ -1,58 +1,60 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useCatalogo } from '../../hooks/useCatalogo';
 
+const FOTOS_PADRAO = [
+  '/images/services/makeup_glam.webp',
+  '/images/services/brow_lamination.webp',
+  '/images/services/facial_spa.webp'
+];
+
 export function BannerInstagram() {
-  const { configuracoes, servicos, categorias } = useCatalogo();
+  const { configuracoes } = useCatalogo();
   const usuarioInsta = configuracoes?.instagram_usuario?.replace('@', '').trim() || 'gabrielapassosbeauty';
 
-  // Obter até 3 imagens distintas dos serviços ou categorias do banco
-  const imagensDinamicas = React.useMemo(() => {
-    const fotos = [];
-    servicos.forEach(s => {
-      if (s.imagem_url && !fotos.includes(s.imagem_url) && fotos.length < 3) {
-        fotos.push(s.imagem_url);
-      }
-    });
-    if (fotos.length < 3) {
-      categorias.forEach(c => {
-        if (c.imagem_url && !fotos.includes(c.imagem_url) && fotos.length < 3) {
-          fotos.push(c.imagem_url);
-        }
-      });
+  // Obtém as 3 fotos configuradas pela administradora com fallback seguro
+  const fotosMural = useMemo(() => {
+    const fotos = configuracoes?.fotos_instagram;
+    if (Array.isArray(fotos) && fotos.length > 0) {
+      return [
+        fotos[0] || FOTOS_PADRAO[0],
+        fotos[1] || FOTOS_PADRAO[1],
+        fotos[2] || FOTOS_PADRAO[2]
+      ];
     }
-    const fallbacks = [
-      '/images/services/makeup_glam.png',
-      '/images/services/brow_lamination.png',
-      '/images/services/facial_spa.png'
-    ];
-    while (fotos.length < 3) {
-      fotos.push(fallbacks[fotos.length]);
-    }
-    return fotos;
-  }, [servicos, categorias]);
+    return FOTOS_PADRAO;
+  }, [configuracoes?.fotos_instagram]);
+
+  const linkInstagram = `https://instagram.com/${usuarioInsta}`;
 
   return (
-    <div className="instagram-banner">
+    <section className="instagram-banner" aria-label="Mural do Instagram">
       <div className="insta-handle">@{usuarioInsta}</div>
       <p className="insta-subtitle">Acompanhe transformações reais e bastidores no Instagram</p>
 
       <div className="insta-grid">
-        <div className="insta-grid-item">
-          <img src="/images/services/makeup_glam.webp" alt="Make Glam" loading="lazy" />
-        </div>
-        <div className="insta-grid-item">
-          <img src="/images/services/brow_lamination.webp" alt="Brow Lamination" loading="lazy" />
-        </div>
-        <div className="insta-grid-item">
-          <img src="/images/services/facial_spa.webp" alt="Facial Spa" loading="lazy" />
-        </div>
+        {fotosMural.map((url, index) => (
+          <a
+            key={index}
+            href={linkInstagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="insta-grid-item touch-active"
+            title={`Ver fotos e produções no perfil @${usuarioInsta}`}
+          >
+            <img
+              src={url}
+              alt={`Produção em destaque ${index + 1} no Instagram`}
+              loading="lazy"
+            />
+          </a>
+        ))}
       </div>
 
       <a
-        href={`https://instagram.com/${usuarioInsta}`}
+        href={linkInstagram}
         target="_blank"
         rel="noopener noreferrer"
-        className="btn-select-service"
+        className="btn-select-service touch-active"
         style={{
           background: '#ffffff',
           color: 'var(--color-primary-red)',
@@ -67,6 +69,6 @@ export function BannerInstagram() {
         </svg>
         <span>Ver no Instagram</span>
       </a>
-    </div>
+    </section>
   );
 }

@@ -1,13 +1,15 @@
 import React from 'react';
 
 /**
- * Modal de Confirmação amigável e elegante
+ * Modal de Confirmação amigável e elegante com suporte a estado de carregamento
  * @param {Object} props
  * @param {boolean} props.aberto
  * @param {string} props.titulo
  * @param {string} props.mensagem
  * @param {string} [props.textoConfirmar]
  * @param {string} [props.textoCancelar]
+ * @param {boolean} [props.carregando]
+ * @param {string} [props.textoCarregando]
  * @param {Function} props.onConfirmar
  * @param {Function} props.onCancelar
  */
@@ -17,13 +19,18 @@ export function ModalConfirmacao({
   mensagem = 'Tem certeza que deseja remover este item do seu agendamento?',
   textoConfirmar = 'Sim, Remover',
   textoCancelar = 'Cancelar',
+  carregando = false,
+  textoCarregando = 'Processando...',
   onConfirmar,
   onCancelar
 }) {
   if (!aberto) return null;
 
   return (
-    <div className="modal-overlay modal-confirm-overlay open" onClick={onCancelar}>
+    <div
+      className="modal-overlay modal-confirm-overlay open"
+      onClick={!carregando ? onCancelar : undefined}
+    >
       <div className="modal-confirm-card" onClick={(e) => e.stopPropagation()}>
         {/* Ícone Amigável de Confirmação */}
         <div className="modal-confirm-icon-wrap">
@@ -43,6 +50,7 @@ export function ModalConfirmacao({
             type="button"
             className="btn-confirm-cancel touch-active"
             onClick={onCancelar}
+            disabled={carregando}
           >
             {textoCancelar}
           </button>
@@ -50,8 +58,17 @@ export function ModalConfirmacao({
             type="button"
             className="btn-confirm-accept touch-active"
             onClick={onConfirmar}
+            disabled={carregando}
+            style={carregando ? { opacity: 0.85, cursor: 'not-allowed' } : undefined}
           >
-            {textoConfirmar}
+            {carregando ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <span className="spinner-mini"></span>
+                <span>{textoCarregando}</span>
+              </span>
+            ) : (
+              textoConfirmar
+            )}
           </button>
         </div>
       </div>

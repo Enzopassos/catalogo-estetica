@@ -14,6 +14,7 @@ function obterCacheInicialCatalogo() {
           categorias: Array.isArray(parsed.categorias) ? parsed.categorias : null,
           servicos: Array.isArray(parsed.servicos) ? parsed.servicos : null,
           configuracoes: parsed.configuracoes && typeof parsed.configuracoes === 'object' ? parsed.configuracoes : null,
+          avaliacoes: Array.isArray(parsed.avaliacoes) ? parsed.avaliacoes : [],
           temCache: true
         };
       }
@@ -21,7 +22,7 @@ function obterCacheInicialCatalogo() {
   } catch (err) {
     console.warn('Erro ao ler cache do catálogo:', err);
   }
-  return { categorias: null, servicos: null, configuracoes: null, temCache: false };
+  return { categorias: null, servicos: null, configuracoes: null, avaliacoes: [], temCache: false };
 }
 
 function salvarCacheCatalogo(dados) {
@@ -30,6 +31,7 @@ function salvarCacheCatalogo(dados) {
       categorias: dados.categorias,
       servicos: dados.servicos,
       configuracoes: dados.configuracoes,
+      avaliacoes: dados.avaliacoes,
       atualizado_em: Date.now()
     }));
   } catch (err) {
@@ -161,7 +163,12 @@ const CONFIG_PADRAO = {
   subtitulo: 'Maquiagem • Sobrancelhas • Estética',
   whatsapp_numero: '5511999999999',
   instagram_usuario: 'gabriela.beauty',
-  logo_url: '/images/logo.jpg'
+  logo_url: '/images/logo.jpg',
+  fotos_instagram: [
+    '/images/services/makeup_glam.webp',
+    '/images/services/brow_lamination.webp',
+    '/images/services/facial_spa.webp'
+  ]
 };
 
 /**
@@ -188,6 +195,7 @@ export function ProvedorCatalogo({ children }) {
   const [categorias, setCategorias] = useState(() => cache.categorias || CATEGORIAS_PADRAO);
   const [servicos, setServicos] = useState(() => cache.servicos || SERVICOS_PADRAO);
   const [configuracoes, setConfiguracoes] = useState(() => cache.configuracoes || CONFIG_PADRAO);
+  const [avaliacoes, setAvaliacoes] = useState(() => cache.avaliacoes || []);
   
   // Se já temos cache, a interface carrega instantaneamente sem tela de loading
   const [carregando, setCarregando] = useState(!cache.temCache);
@@ -198,15 +206,17 @@ export function ProvedorCatalogo({ children }) {
       setCarregando(true);
     }
     try {
-      const [resCat, resServ, resConf] = await Promise.allSettled([
+      const [resCat, resServ, resConf, resAval] = await Promise.allSettled([
         supabase.from('catalogo_categorias').select('*').order('ordem', { ascending: true }),
         supabase.from('catalogo_servicos').select('*').order('ordem', { ascending: true }),
-        supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false }).limit(1).maybeSingle()
+        supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('catalogo_avaliacoes').select('*').order('criado_em', { ascending: false })
       ]);
 
       let novasCats = null;
       let novosServs = null;
       let novasConfs = null;
+      let novasAvals = null;
 
       // 1. Categorias
       if (resCat.status === 'fulfilled' && !resCat.value?.error && Array.isArray(resCat.value?.data)) {
@@ -232,11 +242,18 @@ export function ProvedorCatalogo({ children }) {
         setConfiguracoes(CONFIG_PADRAO);
       }
 
+      // 4. Avaliações (Respeita RLS: anônimos recebem aprovadas, admin recebe todas)
+      if (resAval.status === 'fulfilled' && !resAval.value?.error && Array.isArray(resAval.value?.data)) {
+        novasAvals = resAval.value.data;
+        setAvaliacoes(novasAvals);
+      }
+
       // Atualiza o cache local com os dados mais recentes do banco
       salvarCacheCatalogo({
         categorias: novasCats || cache.categorias || CATEGORIAS_PADRAO,
         servicos: novosServs || cache.servicos || SERVICOS_PADRAO,
-        configuracoes: novasConfs || cache.configuracoes || CONFIG_PADRAO
+        configuracoes: novasConfs || cache.configuracoes || CONFIG_PADRAO,
+        avaliacoes: novasAvals !== null ? novasAvals : (cache.avaliacoes || [])
       });
     } catch (e) {
       console.warn('Falha na sincronização em background com o Supabase:', e);
@@ -254,6 +271,18 @@ export function ProvedorCatalogo({ children }) {
     ...cat,
     quantidade_servicos: servicos.filter(s => s.categoria_slug === cat.slug && s.ativo).length
   }));
+
+  // Avaliações Aprovadas (para o catálogo público)
+  const avaliacoesAprovadas = avaliacoes.filter(av => av.aprovado === true);
+
+  // Avaliações Pendentes (para moderação no painel administrativo)
+  const avaliacoesPendentes = avaliacoes.filter(av => !av.aprovado);
+  const quantidadeAvaliacoesPendentes = avaliacoesPendentes.length;
+
+  // Cálculo da média de estrelas
+  const mediaEstrelas = avaliacoesAprovadas.length > 0
+    ? (avaliacoesAprovadas.reduce((acc, curr) => acc + (Number(curr.estrelas) || 5), 0) / avaliacoesAprovadas.length).toFixed(1)
+    : '5.0';
 
   // =========================================================================
   // CRUD CATEGORIAS
@@ -386,6 +415,9 @@ export function ProvedorCatalogo({ children }) {
       subtitulo: dados.subtitulo?.trim() || 'Maquiagem • Sobrancelhas • Estética',
       whatsapp_numero: dados.whatsapp_numero ? dados.whatsapp_numero.replace(/\D/g, '') : '',
       instagram_usuario: dados.instagram_usuario ? dados.instagram_usuario.replace('@', '').trim() : '',
+      fotos_instagram: Array.isArray(dados.fotos_instagram)
+        ? dados.fotos_instagram
+        : (configuracoes?.fotos_instagram || CONFIG_PADRAO.fotos_instagram),
       atualizado_em: new Date().toISOString()
     };
 
@@ -414,12 +446,83 @@ export function ProvedorCatalogo({ children }) {
     }
   }
 
+  // =========================================================================
+  // CRUD AVALIAÇÕES (COM MODERAÇÃO)
+  // =========================================================================
+  async function enviarAvaliacao(dados) {
+    if (!dados.nome_cliente || dados.nome_cliente.trim().length < 2) {
+      throw new Error('Por favor, informe seu nome completo ou como prefere ser chamada (mínimo 2 caracteres).');
+    }
+    if (!dados.depoimento || dados.depoimento.trim().length < 5) {
+      throw new Error('Por favor, escreva seu depoimento (mínimo 5 caracteres).');
+    }
+
+    const estrelas = Math.max(1, Math.min(5, Number(dados.estrelas) || 5));
+
+    const payload = {
+      nome_cliente: dados.nome_cliente.trim(),
+      estrelas,
+      depoimento: dados.depoimento.trim(),
+      servico_realizado: dados.servico_realizado?.trim() || null,
+      aprovado: false
+    };
+
+    const { error } = await supabase
+      .from('catalogo_avaliacoes')
+      .insert([payload]);
+
+    if (error) throw error;
+    await carregarDados();
+    return true;
+  }
+
+  async function aprovarAvaliacao(id) {
+    const { data, error } = await supabase
+      .from('catalogo_avaliacoes')
+      .update({ aprovado: true })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await carregarDados();
+    return data;
+  }
+
+  async function desaprovarAvaliacao(id) {
+    const { data, error } = await supabase
+      .from('catalogo_avaliacoes')
+      .update({ aprovado: false })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await carregarDados();
+    return data;
+  }
+
+  async function excluirAvaliacao(id) {
+    const { error } = await supabase
+      .from('catalogo_avaliacoes')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    await carregarDados();
+  }
+
   return (
     <ContextoCatalogo.Provider
       value={{
         categorias: categoriasComContagem,
         servicos,
         configuracoes,
+        avaliacoes,
+        avaliacoesAprovadas,
+        avaliacoesPendentes,
+        quantidadeAvaliacoesPendentes,
+        mediaEstrelas,
         carregando,
         recarregar: carregarDados,
         criarCategoria,
@@ -429,7 +532,11 @@ export function ProvedorCatalogo({ children }) {
         atualizarServico,
         alternarStatusServico,
         excluirServico,
-        salvarConfiguracoes
+        salvarConfiguracoes,
+        enviarAvaliacao,
+        aprovarAvaliacao,
+        desaprovarAvaliacao,
+        excluirAvaliacao
       }}
     >
       {children}

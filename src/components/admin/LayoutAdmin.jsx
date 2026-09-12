@@ -5,12 +5,13 @@ import { useCatalogo } from '../../hooks/useCatalogo';
 
 export function LayoutAdmin() {
   const { usuario, fazerLogout } = useAutenticacao();
-  const { categorias, configuracoes } = useCatalogo();
+  const { categorias, configuracoes, quantidadeAvaliacoesPendentes, avaliacoes } = useCatalogo();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isTabCategorias = location.pathname.startsWith('/admin/categorias');
   const isTabConfig = location.pathname.startsWith('/admin/configuracoes');
+  const isTabAvaliacoes = location.pathname.startsWith('/admin/avaliacoes');
 
   async function handleLogout() {
     if (window.confirm('Deseja realmente sair do painel administrativo?')) {
@@ -58,7 +59,7 @@ export function LayoutAdmin() {
         </div>
       </header>
 
-      {/* Duas Abas Principais em Segmented Chips */}
+      {/* Três Abas Principais em Segmented Chips */}
       <nav className="admin-tabs-nav">
         <NavLink
           to="/admin/categorias"
@@ -72,6 +73,23 @@ export function LayoutAdmin() {
           </svg>
           <span>Categorias & Serviços</span>
           <span className="admin-tab-counter-badge">{categorias.length}</span>
+        </NavLink>
+
+        <NavLink
+          to="/admin/avaliacoes"
+          className={`admin-tab-btn ${isTabAvaliacoes ? 'active' : ''}`}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>Avaliações</span>
+          {quantidadeAvaliacoesPendentes > 0 ? (
+            <span className="admin-tab-counter-badge badge-destaque" title={`${quantidadeAvaliacoesPendentes} pendentes de aprovação`}>
+              {quantidadeAvaliacoesPendentes} pendente{quantidadeAvaliacoesPendentes > 1 ? 's' : ''}
+            </span>
+          ) : (
+            <span className="admin-tab-counter-badge">{avaliacoes.length}</span>
+          )}
         </NavLink>
 
         <NavLink

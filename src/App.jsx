@@ -15,6 +15,7 @@ import { LayoutAdmin } from './components/admin/LayoutAdmin';
 import { PaginaAdminCategorias } from './pages/admin/PaginaAdminCategorias';
 import { PaginaAdminServicos } from './pages/admin/PaginaAdminServicos';
 import { PaginaAdminConfig } from './pages/admin/PaginaAdminConfig';
+import { PaginaAdminAvaliacoes } from './pages/admin/PaginaAdminAvaliacoes';
 
 export function App() {
   return (
@@ -33,6 +34,7 @@ export function App() {
                 <Route index element={<Navigate to="/admin/categorias" replace />} />
                 <Route path="categorias" element={<PaginaAdminCategorias />} />
                 <Route path="categorias/:categoriaSlug" element={<PaginaAdminServicos />} />
+                <Route path="avaliacoes" element={<PaginaAdminAvaliacoes />} />
                 <Route path="configuracoes" element={<PaginaAdminConfig />} />
               </Route>
             </Route>

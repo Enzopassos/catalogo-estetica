@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { supabase } from '../../database/clienteSupabase';
+import { ModalConfirmacao } from '../comum/ModalConfirmacao';
 
 /**
  * Utilitário para redimensionar e compactar imagem no navegador (Canvas API)
@@ -66,12 +67,15 @@ export function UploadImagem({
   onAlterar,
   pasta = 'catalogo',
   label = 'Foto / Imagem de Capa',
-  placeholderPadrao = '/images/services/facial_spa.webp'
+  placeholderPadrao = '/images/services/facial_spa.webp',
+  tituloConfirmarRemocao = 'Remover Imagem?',
+  mensagemConfirmarRemocao = 'Tem certeza que deseja remover esta foto? Ela será desvinculada.'
 }) {
   const [carregando, setCarregando] = useState(false);
   const [arrastando, setArrastando] = useState(false);
   const [mostrarCampoUrl, setMostrarCampoUrl] = useState(false);
   const [urlManual, setUrlManual] = useState('');
+  const [modalConfirmarAberto, setModalConfirmarAberto] = useState(false);
   const inputRef = useRef(null);
 
   async function processarArquivo(arquivo) {
@@ -153,7 +157,13 @@ export function UploadImagem({
     }
   }
 
-  function handleRemover() {
+  function handleSolicitarRemocao(e) {
+    if (e) e.stopPropagation();
+    setModalConfirmarAberto(true);
+  }
+
+  function handleConfirmarRemocao() {
+    setModalConfirmarAberto(false);
     onAlterar('');
     if (inputRef.current) {
       inputRef.current.value = '';
@@ -279,7 +289,7 @@ export function UploadImagem({
           <button
             type="button"
             className="btn-upload-remove touch-active"
-            onClick={handleRemover}
+            onClick={handleSolicitarRemocao}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -289,6 +299,17 @@ export function UploadImagem({
           </button>
         </div>
       )}
+
+      {/* Modal de Confirmação para Remoção da Imagem */}
+      <ModalConfirmacao
+        aberto={modalConfirmarAberto}
+        titulo={tituloConfirmarRemocao}
+        mensagem={mensagemConfirmarRemocao}
+        textoConfirmar="Sim, Remover"
+        textoCancelar="Cancelar"
+        onConfirmar={handleConfirmarRemocao}
+        onCancelar={() => setModalConfirmarAberto(false)}
+      />
     </div>
   );
 }

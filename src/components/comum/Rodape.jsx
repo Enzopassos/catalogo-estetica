@@ -9,9 +9,6 @@ export function Rodape() {
   return (
     <footer className="brand-footer">
       <p>© 2026 Gabriela Beauty Studio. Todos os direitos reservados.</p>
-      <p className="brand-footer-sub">
-        Desenvolvido com carinho para agendamentos ágeis no WhatsApp.
-      </p>
     </footer>
   );
 }

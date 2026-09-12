@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCatalogo } from '../../hooks/useCatalogo';
+import { UploadImagem } from '../../components/admin/UploadImagem';
 
 export function PaginaAdminConfig() {
   const { configuracoes, salvarConfiguracoes, carregando } = useCatalogo();
@@ -8,6 +9,9 @@ export function PaginaAdminConfig() {
   const [subtitulo, setSubtitulo] = useState('');
   const [whatsappNumero, setWhatsappNumero] = useState('');
   const [instagramUsuario, setInstagramUsuario] = useState('');
+  const [fotoInsta1, setFotoInsta1] = useState('/images/services/makeup_glam.webp');
+  const [fotoInsta2, setFotoInsta2] = useState('/images/services/brow_lamination.webp');
+  const [fotoInsta3, setFotoInsta3] = useState('/images/services/facial_spa.webp');
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
@@ -17,6 +21,11 @@ export function PaginaAdminConfig() {
       setSubtitulo(configuracoes.subtitulo || '');
       setWhatsappNumero(configuracoes.whatsapp_numero || '');
       setInstagramUsuario(configuracoes.instagram_usuario || '');
+
+      const fotos = Array.isArray(configuracoes.fotos_instagram) ? configuracoes.fotos_instagram : [];
+      setFotoInsta1(fotos[0] || '/images/services/makeup_glam.webp');
+      setFotoInsta2(fotos[1] || '/images/services/brow_lamination.webp');
+      setFotoInsta3(fotos[2] || '/images/services/facial_spa.webp');
     }
   }, [configuracoes]);
 
@@ -30,7 +39,12 @@ export function PaginaAdminConfig() {
         nome_negocio: nomeNegocio.trim(),
         subtitulo: subtitulo.trim(),
         whatsapp_numero: whatsappNumero.replace(/\D/g, ''),
-        instagram_usuario: instagramUsuario.replace('@', '').trim()
+        instagram_usuario: instagramUsuario.replace('@', '').trim(),
+        fotos_instagram: [
+          fotoInsta1 || '/images/services/makeup_glam.webp',
+          fotoInsta2 || '/images/services/brow_lamination.webp',
+          fotoInsta3 || '/images/services/facial_spa.webp'
+        ]
       });
       setSucesso(true);
       setTimeout(() => setSucesso(false), 4000);
@@ -52,15 +66,6 @@ export function PaginaAdminConfig() {
           </p>
         </div>
       </div>
-
-      {sucesso && (
-        <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#065f46', padding: '14px 18px', borderRadius: '14px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <span>Informações do estúdio atualizadas com sucesso!</span>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         {/* Bloco 1: Identidade da Marca */}
@@ -170,6 +175,55 @@ export function PaginaAdminConfig() {
           </div>
         </div>
 
+        {/* Bloco 4: Mural de Fotos do Instagram (Galeria em Destaque) */}
+        <div className="admin-config-card">
+          <div className="admin-config-card-header">
+            <div className="admin-config-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 className="admin-config-card-title">Mural do Instagram (Fotos em Destaque)</h3>
+              <p className="admin-config-card-desc">
+                Selecione as 3 melhores fotos de trabalhos e procedimentos para destacar no mural do catálogo.
+              </p>
+            </div>
+          </div>
+
+          <div className="admin-instagram-uploads-grid">
+            <UploadImagem
+              valor={fotoInsta1}
+              onAlterar={setFotoInsta1}
+              pasta="instagram"
+              label="Foto de Destaque 1"
+              placeholderPadrao="/images/services/makeup_glam.webp"
+              tituloConfirmarRemocao="Remover Foto do Mural?"
+              mensagemConfirmarRemocao="Tem certeza que deseja remover esta foto de destaque do mural do Instagram?"
+            />
+            <UploadImagem
+              valor={fotoInsta2}
+              onAlterar={setFotoInsta2}
+              pasta="instagram"
+              label="Foto de Destaque 2"
+              placeholderPadrao="/images/services/brow_lamination.webp"
+              tituloConfirmarRemocao="Remover Foto do Mural?"
+              mensagemConfirmarRemocao="Tem certeza que deseja remover esta foto de destaque do mural do Instagram?"
+            />
+            <UploadImagem
+              valor={fotoInsta3}
+              onAlterar={setFotoInsta3}
+              pasta="instagram"
+              label="Foto de Destaque 3"
+              placeholderPadrao="/images/services/facial_spa.webp"
+              tituloConfirmarRemocao="Remover Foto do Mural?"
+              mensagemConfirmarRemocao="Tem certeza que deseja remover esta foto de destaque do mural do Instagram?"
+            />
+          </div>
+        </div>
+
         <button
           type="submit"
           className="btn-primary-red touch-active"
@@ -184,6 +238,18 @@ export function PaginaAdminConfig() {
           <span>{salvando ? 'Salvando Alterações...' : 'Salvar Todas as Configurações'}</span>
         </button>
       </form>
+
+      {/* Toast Flutuante de Sucesso no Rodapé */}
+      {sucesso && (
+        <div className="admin-toast-flutuante" role="status" aria-live="polite">
+          <div className="admin-toast-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span>Configurações do estúdio atualizadas com sucesso!</span>
+        </div>
+      )}
     </div>
   );
 }
