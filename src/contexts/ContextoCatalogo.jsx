@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../database/clienteSupabase';
+import { SISTEMA_ID, SISTEMA_SLUG } from '../config/supabaseConfig';
 
-// Chave para cache local de alta performance (Stale-While-Revalidate)
-const CHAVE_CACHE_CATALOGO = 'gabriela_cache_catalogo_v1';
+// Chave para cache local de alta performance (Stale-While-Revalidate) escopada por sistema
+const CHAVE_CACHE_CATALOGO = `catalogo_cache_${SISTEMA_SLUG || 'padrao'}_v1`;
 
 /**
  * Normaliza e otimiza itens para exibição e armazenamento em cache,
@@ -241,11 +242,23 @@ export function ProvedorCatalogo({ children }) {
       setCarregando(true);
     }
     try {
+      let queryCat = supabase.from('catalogo_categorias').select('*').order('ordem', { ascending: true });
+      let queryServ = supabase.from('catalogo_servicos').select('*').order('ordem', { ascending: true });
+      let queryConf = supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false });
+      let queryAval = supabase.from('catalogo_avaliacoes').select('*').order('criado_em', { ascending: false });
+
+      if (SISTEMA_ID) {
+        queryCat = queryCat.eq('sistema_id', SISTEMA_ID);
+        queryServ = queryServ.eq('sistema_id', SISTEMA_ID);
+        queryConf = queryConf.eq('sistema_id', SISTEMA_ID);
+        queryAval = queryAval.eq('sistema_id', SISTEMA_ID);
+      }
+
       const [resCat, resServ, resConf, resAval] = await Promise.allSettled([
-        supabase.from('catalogo_categorias').select('*').order('ordem', { ascending: true }),
-        supabase.from('catalogo_servicos').select('*').order('ordem', { ascending: true }),
-        supabase.from('catalogo_configuracoes').select('*').order('atualizado_em', { ascending: false }).limit(1).maybeSingle(),
-        supabase.from('catalogo_avaliacoes').select('*').order('criado_em', { ascending: false })
+        queryCat,
+        queryServ,
+        queryConf.limit(1).maybeSingle(),
+        queryAval
       ]);
 
       let novasCats = null;
@@ -329,7 +342,8 @@ export function ProvedorCatalogo({ children }) {
       slug,
       descricao: dados.descricao?.trim() || '',
       imagem_url: dados.imagem_url?.trim() || '/images/services/facial_spa.webp',
-      ordem: Number(dados.ordem) || (categorias.length + 1)
+      ordem: Number(dados.ordem) || (categorias.length + 1),
+      ...(SISTEMA_ID ? { sistema_id: SISTEMA_ID } : {})
     };
 
     const { data, error } = await supabase.from('catalogo_categorias').insert([payload]).select().single();
@@ -378,7 +392,8 @@ export function ProvedorCatalogo({ children }) {
       imagem_url: dados.imagem_url?.trim() || '/images/services/makeup_glam.webp',
       adicionais: dados.adicionais || [],
       ativo: dados.ativo !== undefined ? dados.ativo : true,
-      ordem: Number(dados.ordem) || (servicos.length + 1)
+      ordem: Number(dados.ordem) || (servicos.length + 1),
+      ...(SISTEMA_ID ? { sistema_id: SISTEMA_ID } : {})
     };
 
     const { data, error } = await supabase.from('catalogo_servicos').insert([payload]).select().single();
@@ -432,13 +447,17 @@ export function ProvedorCatalogo({ children }) {
     let configId = configuracoes?.id;
 
     if (!configId) {
-      // Busca se já existe algum registro no banco para atualizar
-      const { data: existente } = await supabase
+      // Busca se já existe algum registro no banco para atualizar deste sistema
+      let queryExistente = supabase
         .from('catalogo_configuracoes')
         .select('id')
-        .order('atualizado_em', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('atualizado_em', { ascending: false });
+
+      if (SISTEMA_ID) {
+        queryExistente = queryExistente.eq('sistema_id', SISTEMA_ID);
+      }
+
+      const { data: existente } = await queryExistente.limit(1).maybeSingle();
 
       if (existente?.id) {
         configId = existente.id;
@@ -468,10 +487,15 @@ export function ProvedorCatalogo({ children }) {
       await carregarDados();
       return data;
     } else {
-      // Se não havia nenhum registro no banco, insere o primeiro
+      // Se não havia nenhum registro no banco, insere o primeiro com o sistema_id
+      const payloadInsert = {
+        ...payload,
+        ...(SISTEMA_ID ? { sistema_id: SISTEMA_ID } : {})
+      };
+
       const { data, error } = await supabase
         .from('catalogo_configuracoes')
-        .insert([payload])
+        .insert([payloadInsert])
         .select()
         .single();
 
@@ -499,7 +523,8 @@ export function ProvedorCatalogo({ children }) {
       estrelas,
       depoimento: dados.depoimento.trim(),
       servico_realizado: dados.servico_realizado?.trim() || null,
-      aprovado: false
+      aprovado: false,
+      ...(SISTEMA_ID ? { sistema_id: SISTEMA_ID } : {})
     };
 
     const { error } = await supabase

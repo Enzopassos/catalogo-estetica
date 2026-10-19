@@ -3,7 +3,7 @@ import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAutenticacao } from '../hooks/useAutenticacao';
 
 export function PaginaLogin() {
-  const { estaAutenticado, fazerLogin } = useAutenticacao();
+  const { estaAutenticado, ehAdmin, fazerLogin } = useAutenticacao();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -11,7 +11,7 @@ export function PaginaLogin() {
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
-  if (estaAutenticado) {
+  if (estaAutenticado && ehAdmin) {
     return <Navigate to="/admin/categorias" replace />;
   }
 

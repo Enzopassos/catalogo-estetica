@@ -47,3 +47,16 @@ Antes de alterar qualquer arquivo, apresente um **Plano de Implementação** det
 
 ## 3. Pequenas Correções e Ajustes Pontuais
 Para correções simples de sintaxe, formatação ou ajustes de bugs isolados que envolvam poucas linhas de código, você pode sugerir ou aplicar a solução diretamente, mantendo a concisão.
+
+---
+
+## 4. Diretrizes Obrigatórias do Core Multi-Sistema (Supabase)
+Consulte obrigatoriamente o arquivo [ARCHITECTURE_CORE.md](file:///home/enzo/Documentos/projetos/agendamento-gabriela/ARCHITECTURE_CORE.md) para o manual de arquitetura e DDL completos.
+
+Ao implementar componentes React, queries Supabase, regras de banco ou rotas de API:
+1. **PROIBIDO `JOIN` ou `SELECT` em `auth.users`:** No front-end/PostgREST, utilize sempre a tabela espelho `public.core_perfis` referenciando `usuario_id`.
+2. **SEMPRE filtrar pelo `VITE_SISTEMA_ID` atual:** Usuários podem pertencer a múltiplos sistemas com papéis diferentes. Nunca consulte vínculos ou permissões sem filtrar por `.eq('sistema_id', import.meta.env.VITE_SISTEMA_ID)`.
+3. **Auto-vínculo no `signUp`:** Todo cadastro público de cliente deve incluir `sistema_slug: import.meta.env.VITE_SISTEMA_SLUG` dentro de `options.data` para acionar a trigger automática.
+4. **Tratamento do erro `"User already registered"`:** Instrua o usuário que ele já possui conta unificada na plataforma e deve fazer login para vincular-se a este sistema via `garantir_vinculo_cliente`.
+5. **NUNCA alterar tabelas `core_***` diretamente no Front-end:** Operações de gestão de usuários e papéis devem chamar exclusivamente as RPCs seguras (`listar_usuarios_sistema`, `alterar_politica_usuario`, `alterar_status_usuario_sistema`).
+6. **Segurança no Servidor (Não apenas visual):** Ocultar botões no menu é apenas UX. Toda rota privada no React (`RotaProtegida.jsx`) e tabela de negócio no Supabase (RLS com `public.eh_admin_do_sistema(sistema_id)`) deve validar autorização no backend.
